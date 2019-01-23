@@ -5,9 +5,6 @@ const templates = {
 	input: document.createElement('input'),
 }
 
-templates.form.appendChild(templates.input)
-templates.form.style.display = 'flex'
-templates.form.style.flexDirection = 'column'
 templates.input.style.padding = '5px'
 
 const hostStyle = {
