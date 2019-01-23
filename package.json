@@ -1,0 +1,27 @@
+{
+  "name": "stack-terminal",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "electron electron-app",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://atyn@github.com/Atyn/stack-terminal.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Atyn/stack-terminal/issues"
+  },
+  "homepage": "https://github.com/Atyn/stack-terminal#readme",
+  "dependencies": {
+    "electron": "^4.0.2"
+  },
+  "devDependencies": {
+    "babel-eslint": "^10.0.1",
+    "eslint": "^5.12.1"
+  }
+}
