@@ -9,10 +9,12 @@ templates.input.style.padding = 'var(--default-margin)'
 templates.input.style.border = 'none'
 templates.input.style['-webkit-appearance'] = 'none'
 templates.input.setAttribute('rows', 1)
+templates.input.style.font = 'inherit'
 
 const hostStyle = {
 	display:       'flex',
 	flexDirection: 'column',
+	flexShrink:    0,
 }
 
 class WebComponent extends HTMLElement {

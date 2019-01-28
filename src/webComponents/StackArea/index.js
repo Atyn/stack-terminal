@@ -17,14 +17,17 @@ class WebComponent extends HTMLElement {
 	}
 	onFileChanged(changeType, filename) {
 		this.list.push(filename) // Keep list in sync
+		this.addEntryElement(filename)
 		console.log('onFileChanged:', filename, changeType)
 	} 
 	async connectedCallback() {
+		this.style.overflowY = 'scroll'
 		const workingDirectory = this.getAttribute('working-directory')
 		this.workingDirectory = workingDirectory
 		this.watcher = FsExtra.watch(workingDirectory, this.listener)
-		const list = await FsExtra.readdir(workingDirectory)
-		console.log(list)
+		const unsortedList = await FsExtra.readdir(workingDirectory)
+		const list = unsortedList.sort((a, b) => Number(a) - Number(b))
+		this.list = list
 		list.forEach(this.addEntryElement.bind(this))
 	}
 	addEntryElement(id) {

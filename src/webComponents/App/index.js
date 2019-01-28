@@ -18,6 +18,7 @@ const hostStyle = {
 	display:       'flex',
 	flexDirection: 'column',
 	flexGrow:      1,
+	overflow:      'hidden',
 }
 
 const templates = {
