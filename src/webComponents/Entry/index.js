@@ -1,9 +1,8 @@
+import FsExtra from 'fs-extra'
+import Path from 'path'
 
 const tagName = 'terminal-entry'
-
 export default tagName
-
-const FsExtra = require('fs-extra')
 
 // 'var(--default-margin)'
 
@@ -30,9 +29,16 @@ class WebComponent extends HTMLElement {
 		Object.assign(this.style, hostStyle)
 		const id = this.getAttribute('id')
 		const workingDirectory = this.getAttribute('working-directory')
+		const commandFilePath = Path.resolve(workingDirectory, id, 'command.sh')
+		console.log(commandFilePath)
+		/*
+		const buffer = await FsExtra.readFile(commandFilePath)
 		this.shadowRoot.innerHTML = `
-            <div>${id}</div>
-        `
+			<div>${id}</div>
+			<div>${buffer.toString()}</div>
+		`
+		*/
+		
 	}
 
 	/*

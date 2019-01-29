@@ -1,10 +1,9 @@
-import Entry from '../Entry/index.js'
+import Entry from '../Entry'
+import FsExtra from 'fs-extra'
 
 const tagName = 'terminal-stack-area'
 
 export default tagName
-
-const FsExtra = require('fs-extra')
 
 class WebComponent extends HTMLElement {
 	constructor() {

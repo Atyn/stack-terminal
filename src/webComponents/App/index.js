@@ -1,9 +1,9 @@
 import CommandArea from '../CommandArea/index.js'
 import StackArea from '../StackArea/index.js'
+import Path from 'path'
 
 const FsExtra = require('fs-extra')
 const Os = require('os')
-const Path = require('path')
 
 const tmpDir = Os.tmpdir()
 const workingDirectory = Path.resolve(tmpDir, 'stack-terminal')
