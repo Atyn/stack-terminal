@@ -63,20 +63,28 @@ class WebComponent extends HTMLElement {
 		const commandFilePath = Path.resolve(workingDirectory, id, 'command.sh')
 		const startFilePath = Path.resolve(workingDirectory, id, 'start.sh')
 		const cwdFilePath = Path.resolve(workingDirectory, id, 'cwd')
+		const spawnFilePath = Path.resolve(workingDirectory, id, 'spawn.sh')
+		const pidFilePath = Path.resolve(workingDirectory, id, 'pid')
+		const spawnFileContent = `sh ./start.sh & echo $! > ${pidFilePath}`
 		const startContent = [
 			'#!/bin/bash',
-			`cd ${this.getWorkingDirectory()}`,
+			`cd $(cat ${cwdFilePath})`,
+			'pwd',
 			[
 				'sh',
 				Path.resolve(workingDirectory, id, 'command.sh'),
 				'>',
 				Path.resolve(workingDirectory, id, 'output'),
 			].join(' '),
+			'echo "${PIPESTATUS}" > ' + Path.resolve(workingDirectory, id, 'exitstatus'),
 		].join('\n')
 		await FsExtra.mkdirp(directoryPath)
-		await FsExtra.writeFile(commandFilePath, command)
-		await FsExtra.writeFile(cwdFilePath, cwdFilePath)
-		await FsExtra.writeFile(startFilePath, startContent)
+		await Promise.all([
+			FsExtra.writeFile(commandFilePath, command),
+			FsExtra.writeFile(spawnFilePath, spawnFileContent),
+			FsExtra.writeFile(cwdFilePath, this.getWorkingDirectory()),
+			FsExtra.writeFile(startFilePath, startContent),
+		])
 	}
 }
 

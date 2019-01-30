@@ -18,6 +18,8 @@ const hostStyle = {
 
 templates.root.style.padding = '10px'
 
+// Run by executing "sh ./start.sh & echo $! > pid"
+
 class WebComponent extends HTMLElement {
 	constructor() {
 		super()
@@ -31,6 +33,7 @@ class WebComponent extends HTMLElement {
 	}
 	async getRowElement() {
 		const commandElement = await this.getCommandElement()
+		commandElement.style.flexGrow = 1
 		const statusElement = await this.getStatusElement()
 		const buttonAreaElement = await this.getButtonAreaElement()
 		statusElement.style.marginRight = 'var(--default-margin)'
