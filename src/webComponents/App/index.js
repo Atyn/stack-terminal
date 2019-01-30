@@ -65,7 +65,7 @@ class WebComponent extends HTMLElement {
 		const cwdFilePath = Path.resolve(workingDirectory, id, 'cwd')
 		const spawnFilePath = Path.resolve(workingDirectory, id, 'spawn.sh')
 		const pidFilePath = Path.resolve(workingDirectory, id, 'pid')
-		const spawnFileContent = `sh ./start.sh & echo $! > ${pidFilePath}`
+		const spawnFileContent = `sh ${startFilePath} & echo $! > ${pidFilePath}`
 		const startContent = [
 			'#!/bin/bash',
 			`cd $(cat ${cwdFilePath})`,

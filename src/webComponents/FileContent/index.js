@@ -1,13 +1,12 @@
-import FileContentViewer from '../FileContent'
 import FsExtra from 'fs-extra'
 import Path from 'path'
-import ChildProcess from 'child_process'
 
-const tagName = 'terminal-entry'
+const tagName = 'terminal-file-content'
 export default tagName
 
 // 'var(--default-margin)'
 
+const filename = 'output'
 const templates = {
 	root: document.createElement('div'),
 }
@@ -25,13 +24,35 @@ templates.root.style.padding = '10px'
 class WebComponent extends HTMLElement {
 	constructor() {
 		super()
-		// this.listener = this.onFileChanged.bind(this)
+		this.listener = this.onFileChanged.bind(this)
+		this.rootElement = document.createElement('pre')
 		const shadowRoot = this.attachShadow({ mode: 'open' })
+		this.shadowRoot.appendChild(this.rootElement)
 	}
 	async connectedCallback() {
-		Object.assign(this.style, hostStyle)
-		const rootElement = await this.getRootElement()
-		this.shadowRoot.appendChild(rootElement)
+		const workingDirectory = this.getAttribute('working-directory')
+		const id = this.getAttribute('job-id')
+		const directory = Path.resolve(workingDirectory, id)
+		const rootElement = document.createElement('pre')
+		this.watcher = FsExtra.watch(directory, this.listener)
+		// Doest file exists?
+		const filepath = Path.resolve(workingDirectory, id, filename)
+		const exists = await FsExtra.exists(filepath)
+		if (exists) {
+			await this.updateContentFromFile()
+		}
+	}
+	async onFileChanged(type, filepath) {
+		if (filepath === filename) {
+			this.updateContentFromFile()
+		}
+	}
+	async updateContentFromFile() {
+		const workingDirectory = this.getAttribute('working-directory')
+		const id = this.getAttribute('job-id')
+		const filepath = Path.resolve(workingDirectory, id, filename)
+		const buffer = await FsExtra.readFile(filepath)
+		this.rootElement.innerHTML = buffer.toString()
 	}
 	async getRowElement() {
 		const commandElement = await this.getCommandElement()
@@ -48,17 +69,11 @@ class WebComponent extends HTMLElement {
 		return element
 	}
 	async getRootElement() {
-		const workingDirectory = this.getAttribute('working-directory')
-		const id = this.getAttribute('id')
 		const resultElement = await this.getResultElement()
 		const rowElement = await this.getRowElement()
 		const element = document.createElement('div')
-		const outputElement = document.createElement(FileContentViewer)
-		outputElement.setAttribute('working-directory', workingDirectory)
-		outputElement.setAttribute('job-id', id)
 		element.appendChild(rowElement)
 		element.appendChild(resultElement)
-		element.appendChild(outputElement)
 		element.style.display = 'flex'
 		element.style.flexDirection = 'column'
 		return element
@@ -68,19 +83,6 @@ class WebComponent extends HTMLElement {
 		element.style.color = 'grey'
 		element.innerHTML = 'status'
 		return element
-	}
-	async execute() {
-		const id = this.getAttribute('id')
-		const workingDirectory = this.getAttribute('working-directory')
-		const spawnFilePath = Path.resolve(workingDirectory, id, 'spawn.sh')
-		const command = `bash ${spawnFilePath}`
-		console.log('command:', command)
-		
-		ChildProcess.exec(`bash ${spawnFilePath}`, (error) => {
-			if (error) {
-				console.error(error)
-			}
-		})
 	}
 	async getButtonAreaElement() {
 		const element = document.createElement('div')
@@ -93,6 +95,7 @@ class WebComponent extends HTMLElement {
 		const id = this.getAttribute('id')
 		const workingDirectory = this.getAttribute('working-directory')
 		const commandFilePath = Path.resolve(workingDirectory, id, 'command.sh')
+		console.log(commandFilePath)
 		const buffer = await FsExtra.readFile(commandFilePath)
 		const element = document.createElement('div')
 		element.innerHTML = buffer.toString()
