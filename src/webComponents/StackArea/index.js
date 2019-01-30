@@ -10,16 +10,14 @@ class WebComponent extends HTMLElement {
 		super()
 		this.listener = this.onFileChanged.bind(this)
 		const shadowRoot = this.attachShadow({ mode: 'open' })
-		shadowRoot.innerHTML = `
-            <div>Stack</div>
-        `
+		shadowRoot.innerHTML = ''
 	}
 	onFileChanged(changeType, filename) {
 		this.list.push(filename) // Keep list in sync
 		setTimeout(() => {
 			this.addEntryElement(filename)
 		}, 200)
-	} 
+	}
 	async connectedCallback() {
 		this.style.overflowY = 'scroll'
 		const workingDirectory = this.getAttribute('working-directory')

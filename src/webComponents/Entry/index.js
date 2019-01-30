@@ -15,7 +15,7 @@ const templates = {
 const hostStyle = {
 	display:       'flex',
 	flexDirection: 'column',
-	padding:       'var(--default-margin)',
+	// padding:       'var(--default-margin)',
 }
 
 templates.root.style.padding = '10px'
@@ -36,12 +36,17 @@ class WebComponent extends HTMLElement {
 	async getRowElement() {
 		const commandElement = await this.getCommandElement()
 		commandElement.style.flexGrow = 1
+		commandElement.style.fontWeight = 'bold'
 		const statusElement = await this.getStatusElement()
 		const buttonAreaElement = await this.getButtonAreaElement()
 		statusElement.style.marginRight = 'var(--default-margin)'
 		const element = document.createElement('div')
 		statusElement.style.flexShrink = '0'
 		element.style.display = 'flex'
+		element.style.position = 'sticky'
+		element.style.padding = 'var(--default-margin)'
+		element.style.top = 0
+		element.style.backgroundColor = 'var(--background-color)'
 		element.appendChild(statusElement)
 		element.appendChild(commandElement)
 		element.appendChild(buttonAreaElement)
@@ -54,6 +59,7 @@ class WebComponent extends HTMLElement {
 		const rowElement = await this.getRowElement()
 		const element = document.createElement('div')
 		const outputElement = document.createElement(FileContentViewer)
+		outputElement.style.padding = 'var(--default-margin)'
 		outputElement.setAttribute('working-directory', workingDirectory)
 		outputElement.setAttribute('job-id', id)
 		element.appendChild(rowElement)
@@ -61,6 +67,7 @@ class WebComponent extends HTMLElement {
 		element.appendChild(outputElement)
 		element.style.display = 'flex'
 		element.style.flexDirection = 'column'
+		element.style.position = 'relative'
 		return element
 	}
 	async getStatusElement() {

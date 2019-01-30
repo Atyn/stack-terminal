@@ -5,11 +5,14 @@ const templates = {
 	input: document.createElement('input'),
 }
 
-templates.input.style.padding = 'var(--default-margin)'
+templates.input.style.padding = 'calc(2 * var(--default-margin))'
 templates.input.style.border = 'none'
 templates.input.style['-webkit-appearance'] = 'none'
 templates.input.setAttribute('rows', 1)
+templates.input.setAttribute('autofocus', true)
 templates.input.style.font = 'inherit'
+templates.input.style.backgroundColor = 'rgba(255,255,255,0.1)'
+templates.input.style.color = 'inherit'
 
 const hostStyle = {
 	display:       'flex',

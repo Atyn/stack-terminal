@@ -26,6 +26,8 @@ class WebComponent extends HTMLElement {
 		super()
 		this.listener = this.onFileChanged.bind(this)
 		this.rootElement = document.createElement('pre')
+		this.rootElement.style.fontFamily = 'inherit'
+		this.rootElement.style.margin = 0
 		const shadowRoot = this.attachShadow({ mode: 'open' })
 		this.shadowRoot.appendChild(this.rootElement)
 	}
@@ -33,7 +35,6 @@ class WebComponent extends HTMLElement {
 		const workingDirectory = this.getAttribute('working-directory')
 		const id = this.getAttribute('job-id')
 		const directory = Path.resolve(workingDirectory, id)
-		const rootElement = document.createElement('pre')
 		this.watcher = FsExtra.watch(directory, this.listener)
 		// Doest file exists?
 		const filepath = Path.resolve(workingDirectory, id, filename)

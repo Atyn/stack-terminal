@@ -37,6 +37,8 @@ class WebComponent extends HTMLElement {
 		const directoryElement = document.createElement('div')
 		directoryElement.style.padding = 'var(--default-margin)'
 		directoryElement.innerHTML = this.getWorkingDirectory()
+		directoryElement.style.color = '#44ff3b'
+		directoryElement.style.fontWeight = 'bold'
 		stackArea.setAttribute('working-directory', workingDirectory)
 		shadowRoot.appendChild(stackArea)
 		shadowRoot.appendChild(directoryElement)
