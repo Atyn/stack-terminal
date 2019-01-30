@@ -23,22 +23,58 @@ class WebComponent extends HTMLElement {
 		super()
 		// this.listener = this.onFileChanged.bind(this)
 		const shadowRoot = this.attachShadow({ mode: 'open' })
-		shadowRoot.innerHTML = ''
 	}
 	async connectedCallback() {
 		Object.assign(this.style, hostStyle)
+		const rootElement = await this.getRootElement()
+		this.shadowRoot.appendChild(rootElement)
+	}
+	async getRowElement() {
+		const commandElement = await this.getCommandElement()
+		const statusElement = await this.getStatusElement()
+		const buttonAreaElement = await this.getButtonAreaElement()
+		statusElement.style.marginRight = 'var(--default-margin)'
+		const element = document.createElement('div')
+		statusElement.style.flexShrink = '0'
+		element.style.display = 'flex'
+		element.appendChild(statusElement)
+		element.appendChild(commandElement)
+		element.appendChild(buttonAreaElement)
+		return element
+	}
+	async getRootElement() {
+		const resultElement = await this.getResultElement()
+		const rowElement = await this.getRowElement()
+		const element = document.createElement('div')
+		element.appendChild(rowElement)
+		element.appendChild(resultElement)
+		element.style.display = 'flex'
+		element.style.flexDirection = 'column'
+		return element
+	}
+	async getStatusElement() {
+		const element = document.createElement('div')
+		element.style.color = 'grey'
+		element.innerHTML = 'status'
+		return element
+	}
+	async getButtonAreaElement() {
+		const element = document.createElement('div')
+		return element
+	}
+	async getCommandElement() {
 		const id = this.getAttribute('id')
 		const workingDirectory = this.getAttribute('working-directory')
 		const commandFilePath = Path.resolve(workingDirectory, id, 'command.sh')
 		console.log(commandFilePath)
-		/*
 		const buffer = await FsExtra.readFile(commandFilePath)
-		this.shadowRoot.innerHTML = `
-			<div>${id}</div>
-			<div>${buffer.toString()}</div>
-		`
-		*/
-		
+		const element = document.createElement('div')
+		element.innerHTML = buffer.toString()
+		return element
+	}
+	async getResultElement() {
+		const element = document.createElement('div')
+		return element
 	}
 
 	/*

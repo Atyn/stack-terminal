@@ -16,7 +16,10 @@ class WebComponent extends HTMLElement {
 	}
 	onFileChanged(changeType, filename) {
 		this.list.push(filename) // Keep list in sync
-		this.addEntryElement(filename)
+		console.log(changeType, filename)
+		setTimeout(() => {
+			this.addEntryElement(filename)
+		}, 200)
 		console.log('onFileChanged:', filename, changeType)
 	} 
 	async connectedCallback() {
