@@ -64,11 +64,15 @@ class WebComponent extends HTMLElement {
 		const startFilePath = Path.resolve(workingDirectory, id, 'start.sh')
 		const cwdFilePath = Path.resolve(workingDirectory, id, 'cwd')
 		const startContent = [
-			'sh',
-			Path.resolve(workingDirectory, id, 'command.sh'),
-			'>',
-			Path.resolve(workingDirectory, id, 'output'),
-		].join(' ')
+			'#!/bin/bash',
+			`cd ${this.getWorkingDirectory()}`,
+			[
+				'sh',
+				Path.resolve(workingDirectory, id, 'command.sh'),
+				'>',
+				Path.resolve(workingDirectory, id, 'output'),
+			].join(' '),
+		].join('\n')
 		await FsExtra.mkdirp(directoryPath)
 		await FsExtra.writeFile(commandFilePath, command)
 		await FsExtra.writeFile(cwdFilePath, cwdFilePath)
