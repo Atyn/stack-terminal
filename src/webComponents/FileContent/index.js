@@ -1,5 +1,6 @@
 import FsExtra from 'fs-extra'
 import Path from 'path'
+import { Terminal } from 'xterm'
 
 const tagName = 'terminal-file-content'
 export default tagName
@@ -8,8 +9,21 @@ export default tagName
 
 const filename = 'output'
 const templates = {
-	root: document.createElement('div'),
+	root:   document.createElement('div'),
+	canvas: document.createElement('canvas'),
+	pre:    document.createElement('pre'),
 }
+
+Object.assign(templates.canvas.style, {
+	flexGrow: 1,
+})
+
+Object.assign(templates.pre.style, {
+	flexGrow:      1,
+	fontFamily:    'inherit',
+	margin:        0,
+	'white-space': 'pre-line',
+})
 
 const hostStyle = {
 	display:       'flex',
@@ -25,13 +39,24 @@ class WebComponent extends HTMLElement {
 	constructor() {
 		super()
 		this.listener = this.onFileChanged.bind(this)
-		this.rootElement = document.createElement('pre')
-		this.rootElement.style.fontFamily = 'inherit'
-		this.rootElement.style.margin = 0
 		const shadowRoot = this.attachShadow({ mode: 'open' })
-		this.shadowRoot.appendChild(this.rootElement)
+		// this.shadowRoot.appendChild(this.rootElement)
+		this.canvas = templates.canvas.cloneNode(true)
+		this.pre = templates.pre.cloneNode(true)
+		this.shadowRoot.appendChild(this.pre)
+		/*
+		this.term = new Terminal()	
+		this.term.open(this.canvas)
+		console.log(this.canvas)
+		this.shadowRoot.appendChild(this.canvas)
+		*/
+		
+		// term.open(document.getElementById('terminal'))
+		// term.write('Hello from \x1B[1;3;31mxterm.js\x1B[0m $ ')
+
 	}
 	async connectedCallback() {
+		Object.assign(this.style, hostStyle)
 		const workingDirectory = this.getAttribute('working-directory')
 		const id = this.getAttribute('job-id')
 		const directory = Path.resolve(workingDirectory, id)
@@ -53,7 +78,7 @@ class WebComponent extends HTMLElement {
 		const id = this.getAttribute('job-id')
 		const filepath = Path.resolve(workingDirectory, id, filename)
 		const buffer = await FsExtra.readFile(filepath)
-		this.rootElement.innerHTML = buffer.toString()
+		this.pre.innerHTML = buffer.toString()
 	}
 	async getRowElement() {
 		const commandElement = await this.getCommandElement()

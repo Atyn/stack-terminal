@@ -6,8 +6,6 @@ import ChildProcess from 'child_process'
 const tagName = 'terminal-entry'
 export default tagName
 
-// 'var(--default-margin)'
-
 const templates = {
 	root: document.createElement('div'),
 }
@@ -32,24 +30,52 @@ class WebComponent extends HTMLElement {
 		Object.assign(this.style, hostStyle)
 		const rootElement = await this.getRootElement()
 		this.shadowRoot.appendChild(rootElement)
+		const id = this.getAttribute('id')
+		const workingDirectory = this.getAttribute('working-directory')		
+		this.watcher = FsExtra.watch(
+			Path.resolve(workingDirectory, id),
+			this.onFileChange.bind(this)
+		)
+		this.checkStatus()
+	}
+	onFileChange(type, filepath) {
+		if (filepath === 'status') {
+			this.checkStatus()
+		}
+	}
+	async checkStatus() {
+		const id = this.getAttribute('id')
+		const workingDirectory = this.getAttribute('working-directory')
+		const exitStatusFilepath = Path.resolve(workingDirectory, id, 'exitstatus')
+		const buffer = await FsExtra.readFile(exitStatusFilepath)
+		const status = Number.parseInt(buffer.toString())
+		if (status) {
+			this.statusElement.style.color = 'red'
+		} else {
+			this.statusElement.style.color = 'rgb(68, 255, 59)'
+		}
 	}
 	async getRowElement() {
 		const commandElement = await this.getCommandElement()
 		commandElement.style.flexGrow = 1
 		commandElement.style.fontWeight = 'bold'
 		const statusElement = await this.getStatusElement()
-		const buttonAreaElement = await this.getButtonAreaElement()
+		this.statusElement = statusElement
+		// const buttonAreaElement = await this.getButtonAreaElement()
 		statusElement.style.marginRight = 'var(--default-margin)'
 		const element = document.createElement('div')
 		statusElement.style.flexShrink = '0'
-		element.style.display = 'flex'
-		element.style.position = 'sticky'
-		element.style.padding = 'var(--default-margin)'
-		element.style.top = 0
-		element.style.backgroundColor = 'var(--background-color)'
+		Object.assign(element.style, {
+			display:         'flex',
+			position:        'sticky',
+			alignItems:      'center',
+			padding:         'var(--default-margin)',
+			top:             0,
+			backgroundColor: 'var(--background-color)',
+		})
 		element.appendChild(statusElement)
 		element.appendChild(commandElement)
-		element.appendChild(buttonAreaElement)
+		// element.appendChild(buttonAreaElement)
 		return element
 	}
 	async getRootElement() {
@@ -72,8 +98,14 @@ class WebComponent extends HTMLElement {
 	}
 	async getStatusElement() {
 		const element = document.createElement('div')
-		element.style.color = 'grey'
-		element.innerHTML = 'status'
+		Object.assign(element.style, {
+			color:           'yellow',
+			height:          '0.8em',
+			width:           '0.8em',
+			backgroundColor: 'currentColor',
+			borderRadius:    '50%',
+		})
+		// element.innerHTML = 'status'
 		return element
 	}
 	async execute() {
@@ -82,7 +114,6 @@ class WebComponent extends HTMLElement {
 		const spawnFilePath = Path.resolve(workingDirectory, id, 'spawn.sh')
 		const command = `bash ${spawnFilePath}`
 		console.log('command:', command)
-		
 		ChildProcess.exec(`bash ${spawnFilePath}`, (error) => {
 			if (error) {
 				console.error(error)

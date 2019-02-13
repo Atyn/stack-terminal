@@ -2,6 +2,7 @@ import CommandArea from '../CommandArea'
 import StackArea from '../StackArea'
 import Path from 'path'
 import FsExtra from 'fs-extra'
+import ChildProcess from 'child_process'
 
 const Os = require('os')
 
@@ -31,25 +32,47 @@ templates.stackArea.style.flexGrow = 1
 class WebComponent extends HTMLElement {
 	constructor() {
 		super()
+		this.workingDirectory = process.cwd()
 		const shadowRoot = this.attachShadow({ mode: 'open' })
 		const commandArea = templates.commandArea.cloneNode(true)
 		const stackArea = templates.stackArea.cloneNode(true)
 		const directoryElement = document.createElement('div')
 		directoryElement.style.padding = 'var(--default-margin)'
-		directoryElement.innerHTML = this.getWorkingDirectory()
 		directoryElement.style.color = '#44ff3b'
+		directoryElement.innerHTML = this.getWorkingDirectory()
 		directoryElement.style.fontWeight = 'bold'
+
+		this.directoryElement = directoryElement
 		stackArea.setAttribute('working-directory', workingDirectory)
 		shadowRoot.appendChild(stackArea)
 		shadowRoot.appendChild(directoryElement)
 		shadowRoot.appendChild(commandArea)
-		commandArea.addEventListener('command', (event) => {
-			const command = event.detail
+		commandArea.addEventListener('command', this.onCommand.bind(this))
+	}
+	async onCommand(event) {
+		const command = event.detail
+		if (command === 'cd') {
+			console.log('command cd - do nothing')
+		} else if (command.startsWith('cd ')) {
+			const newWorkingDirectory = Path.resolve(
+				this.workingDirectory, 
+				command.replace('cd ', '')
+			)
+			console.log(newWorkingDirectory)
+			const pathExists = await FsExtra.pathExists(newWorkingDirectory)
+			if (pathExists) {
+				this.workingDirectory = newWorkingDirectory
+				this.directoryElement.innerHTML = this.getWorkingDirectory()
+			} else {
+				console.warn('Path', pathExists, 'doesnt exists')
+			}
+			// this.workingDirectory = this.workingDirectory
+		} else {
 			this.createCommandObject(command)
-		})
+		}
 	}
 	getWorkingDirectory() {
-		return process.cwd()
+		return this.workingDirectory
 	}
 	async connectedCallback() {
 		Object.assign(this.style, hostStyle)
@@ -78,15 +101,25 @@ class WebComponent extends HTMLElement {
 				'>',
 				Path.resolve(workingDirectory, id, 'output'),
 			].join(' '),
-			'echo "${PIPESTATUS}" > ' + Path.resolve(workingDirectory, id, 'exitstatus'),
 		].join('\n')
 		await FsExtra.mkdirp(directoryPath)
 		await Promise.all([
-			FsExtra.writeFile(commandFilePath, command),
+			FsExtra.writeFile(commandFilePath, [
+				'#!/bin/bash',
+				command,
+				'echo $? > ' + Path.resolve(workingDirectory, id, 'exitstatus'),
+			].join('\n')),
 			FsExtra.writeFile(spawnFilePath, spawnFileContent),
 			FsExtra.writeFile(cwdFilePath, this.getWorkingDirectory()),
 			FsExtra.writeFile(startFilePath, startContent),
 		])
+		// Execute
+		ChildProcess.exec(`bash ${spawnFilePath}`, (error) => {
+			if (error) {
+				console.error(error)
+			}
+		})
+
 	}
 }
 

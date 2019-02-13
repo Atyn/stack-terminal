@@ -2,6 +2,15 @@ import Entry from '../Entry'
 import FsExtra from 'fs-extra'
 
 const tagName = 'terminal-stack-area'
+const hostStyle = {
+	overflowY: 'scroll',
+	overflowX: 'hidden',
+	// 'scroll-behavior': 'smooth',
+}
+const mutationObserverConfig = {
+	childList: true, 
+	subtree:   true,
+}
 
 export default tagName
 
@@ -18,8 +27,23 @@ class WebComponent extends HTMLElement {
 			this.addEntryElement(filename)
 		}, 200)
 	}
+	onDomChange() {
+		this.scrollToBottom()
+	}
+	scrollToBottom() {
+		setTimeout(() => {
+			this.scrollTop = this.scrollHeight
+		}, 50)
+	}
+	startObservingChanges() {
+		const observer = new MutationObserver(this.onDomChange.bind(this))
+		observer.observe(this.shadowRoot, mutationObserverConfig)
+	}
+	onScroll(event) {
+		// console.log('scroll', event)
+	}
 	async connectedCallback() {
-		this.style.overflowY = 'scroll'
+		Object.assign(this.style, hostStyle)
 		const workingDirectory = this.getAttribute('working-directory')
 		this.workingDirectory = workingDirectory
 		this.watcher = FsExtra.watch(workingDirectory, this.listener)
@@ -27,6 +51,12 @@ class WebComponent extends HTMLElement {
 		const list = unsortedList.sort((a, b) => Number(a) - Number(b))
 		this.list = list
 		list.forEach(this.addEntryElement.bind(this))
+		this.addEventListener('scroll', this.onScroll.bind(this))
+		this.startObservingChanges()
+		setTimeout(
+			() => this.scrollToBottom(),
+			200
+		)
 	}
 	addEntryElement(id) {
 		const element = document.createElement(Entry)
