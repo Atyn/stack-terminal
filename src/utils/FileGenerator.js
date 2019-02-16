@@ -9,8 +9,10 @@ export default {
 		const cwdFilePath = PathGenerator.getCwdFilePath(id)
 		const commandFilePath = PathGenerator.getCommandFilePath(id)
 		const outputFilePath = PathGenerator.getOutputFilePath(id)
+		const pidFilePath = PathGenerator.getPidFilePath(id)
 		return [
 			'#!/bin/bash',
+			`echo $$ > ${pidFilePath}`,
 			`cd $(cat ${cwdFilePath})`,
 			[
 				'sh',
@@ -18,15 +20,14 @@ export default {
 				'>',
 				outputFilePath,
 			].join(' '),
+			'echo $? > ' + PathGenerator.getExitStatusFilePath(id),
 		].join('\n')
 	},
 	getSpawnFileContent(id) {
 		const startFilePath = PathGenerator.getStartFilePath(id)
-		const pidFilePath = PathGenerator.getPidFilePath(id)
 		return [
 			'#!/bin/bash',
 			`sh ${startFilePath} &`,
-			`echo $$ > ${pidFilePath}`,
 		].join('\n')
 		// `sh ${startFilePath} & echo $! > ${pidFilePath}`
 	},

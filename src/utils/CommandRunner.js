@@ -18,16 +18,11 @@ export default {
 	},
 	async run(command, workingDirectory) {
 		const id = await IdTracker.generateNewId()
-		const commandFileContent = [
-			'#!/bin/bash',
-			command,
-			'echo $? > ' + PathGenerator.getExitStatusFilePath(id),
-		].join('\n')
 		const executeCommand = `sh ${PathGenerator.getSpawnFilePath(id)}`
 		await Promise.all([
 			FsExtra.writeFile(
 				PathGenerator.getCommandFilePath(id), 
-				commandFileContent
+				command
 			),
 			FsExtra.writeFile(
 				PathGenerator.getSpawnFilePath(id), 
