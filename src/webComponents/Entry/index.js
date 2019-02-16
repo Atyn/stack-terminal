@@ -4,6 +4,7 @@ import Path from 'path'
 import ChildProcess from 'child_process'
 import CommandRunner from '../../utils/CommandRunner'
 import FileSyncer from '../../utils/FileSyncer'
+import PathGenerator from '../../utils/PathGenerator'
 
 const tagName = 'terminal-entry'
 export default tagName
@@ -25,7 +26,6 @@ templates.root.style.padding = '10px'
 class WebComponent extends HTMLElement {
 	constructor() {
 		super()
-		// this.listener = this.onFileChanged.bind(this)
 		const shadowRoot = this.attachShadow({ mode: 'open' })
 		this.intersectionObserver = new IntersectionObserver(
 			this.onIntersection.bind(this), {
@@ -33,6 +33,7 @@ class WebComponent extends HTMLElement {
 				threshold:  1.0,
 				root:       document.body,
 			})
+		this.killButton = this.getKillButton()		
 	}
 	async expand() {
 		if (this.outputElement) {
@@ -49,9 +50,13 @@ class WebComponent extends HTMLElement {
 		CommandRunner.kill(id)
 	}
 	onIntersection(entries) {
+		entries.forEach(entry => {
+			entry.isIntersecting
+		})		
 	}
 	disconnectedCallback() {
 		this.intersectionObserver.unobserve()
+		this.watchers.forEach(watcher => watcher.close())
 	}
 	async connectedCallback() {
 		Object.assign(this.style, hostStyle)
@@ -59,34 +64,26 @@ class WebComponent extends HTMLElement {
 		this.rootElement = rootElement
 		this.shadowRoot.appendChild(rootElement)
 		const id = this.getAttribute('id')
-		const workingDirectory = this.getAttribute('working-directory')		
-		this.watcher = FsExtra.watch(
-			Path.resolve(workingDirectory, id),
-			this.onFileChange.bind(this)
-		)
-		this.checkStatus()
 		this.intersectionObserver.observe(rootElement)
+		this.watchers = [
+			FileSyncer.sync(
+				PathGenerator.getExitStatusFilePath(id),
+				this.onStatus.bind(this)
+			),
+		]
 	}
-	onFileChange(type, filepath) {
-		if (filepath === 'status') {
-			this.checkStatus()
-		}
-	}
-	async checkStatus() {
-		const id = this.getAttribute('id')
-		const workingDirectory = this.getAttribute('working-directory')
-		const exitStatusFilepath = Path.resolve(workingDirectory, id, 'exitstatus')
-		const buffer = await FsExtra.readFile(exitStatusFilepath)
-		const status = Number.parseInt(buffer.toString())
+	onStatus(value) {
+		const status = Number.parseInt(value)
+		this.killButton.remove()
 		if (status) {
 			this.statusElement.style.color = 'red'
 		} else {
 			this.statusElement.style.color = 'rgb(68, 255, 59)'
 		}
 	}
-	async getKillButton() {
+	getKillButton() {
 		const element = document.createElement('div')
-		element.innerHTML = 'KILL'
+		element.innerHTML = ' KILL '
 		element.addEventListener('click', this.kill.bind(this))
 		Object.assign(element.style, {
 			cursor: 'pointer',
@@ -95,7 +92,7 @@ class WebComponent extends HTMLElement {
 	}
 	async getExpandButton() {
 		const element = document.createElement('div')
-		element.innerHTML = 'EXPAND'
+		element.innerHTML = ' EXPAND '
 		element.addEventListener('click', this.expand.bind(this))
 		Object.assign(element.style, {
 			cursor: 'pointer',
@@ -104,7 +101,7 @@ class WebComponent extends HTMLElement {
 	}
 	async getRowElement() {
 		const commandElement = await this.getCommandElement()
-		const killButton = await this.getKillButton()		
+		
 		const expandButton = await this.getExpandButton()
 		commandElement.style.flexGrow = 1
 		commandElement.style.fontWeight = 'bold'
@@ -124,7 +121,7 @@ class WebComponent extends HTMLElement {
 		})
 		element.appendChild(statusElement)
 		element.appendChild(commandElement)
-		element.appendChild(killButton)
+		element.appendChild(this.killButton)
 		element.appendChild(expandButton)
 		// element.appendChild(buttonAreaElement)
 		return element
