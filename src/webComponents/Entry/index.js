@@ -5,6 +5,7 @@ import ChildProcess from 'child_process'
 import CommandRunner from '../../utils/CommandRunner'
 import FileSyncer from '../../utils/FileSyncer'
 import PathGenerator from '../../utils/PathGenerator'
+import { generateKeyPair } from 'crypto'
 
 const tagName = 'terminal-entry'
 export default tagName
@@ -25,7 +26,7 @@ templates.root.style.padding = '10px'
 
 class WebComponent extends HTMLElement {
 	constructor() {
-		super()
+		super()		
 		const shadowRoot = this.attachShadow({ mode: 'open' })
 		this.intersectionObserver = new IntersectionObserver(
 			this.onIntersection.bind(this), {
@@ -35,14 +36,19 @@ class WebComponent extends HTMLElement {
 			})
 		this.killButton = this.getKillButton()
 		this.expandButton = this.getExpandButton()
+		this.timeElement = document.createElement('div')
+		Object.assign(this.timeElement.style, {
+			opacity: 0.4,
+			padding: '0 var(--default-margin)',
+		})
 	}
 	async expand() {
 		if (this.outputElement) {
-			this.expandButton.style.transform = 'rotate(-90deg)'
+			this.expandButton.style.transform = 'rotate(0)'
 			this.outputElement.remove()
 			this.outputElement = null
 		} else {
-			this.expandButton.style.transform = 'rotate(90deg)'
+			this.expandButton.style.transform = 'rotate(-180deg)'
 			const outputElement = await this.getOutputElement()
 			this.outputElement = outputElement
 			this.rootElement.appendChild(outputElement)
@@ -62,11 +68,11 @@ class WebComponent extends HTMLElement {
 		this.watchers.forEach(watcher => watcher.close())
 	}
 	async connectedCallback() {
+		const id = this.getAttribute('id')
 		Object.assign(this.style, hostStyle)
 		const rootElement = await this.getRootElement()
 		this.rootElement = rootElement
 		this.shadowRoot.appendChild(rootElement)
-		const id = this.getAttribute('id')
 		this.intersectionObserver.observe(rootElement)
 		this.watchers = [
 			FileSyncer.sync(
@@ -74,6 +80,8 @@ class WebComponent extends HTMLElement {
 				this.onStatus.bind(this)
 			),
 		]
+		const fileStats = await FsExtra.stat(PathGenerator.getSpawnFilePath(id))
+		this.timeElement.innerText = new Date(fileStats.atimeMs).toLocaleTimeString()
 	}
 	onStatus(value) {
 		const status = Number.parseInt(value)
@@ -91,26 +99,29 @@ class WebComponent extends HTMLElement {
 		Object.assign(element.style, {
 			cursor:     'pointer',
 			fontWeight: 'bold',
-			padding:    'var(--default-margin)',
+			padding:    '0 var(--default-margin)',
 		})
 		return element
 	}
 	getExpandButton() {
 		const element = document.createElement('div')
-		element.innerHTML = '>'
+		element.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'
 		element.addEventListener('click', this.expand.bind(this))
 		Object.assign(element.style, {
 			cursor:     'pointer',
 			fontWeight: 'bold',
-			padding:    'var(--default-margin)',
+			padding:    '0 var(--default-margin)',
+			margin:     '0 -10px',
 			transition: 'transform 0.6s',
-			transform:  'rotate(90deg)',
+			transform:  'rotate(-180deg)',
 		})
 		return element
 	}
 	async getRowElement() {
+		const fillerElement = document.createElement('div')
+		fillerElement.style.flexGrow = 1
 		const commandElement = await this.getCommandElement()
-		commandElement.style.flexGrow = 1
+		// commandElement.style.flexGrow = 1
 		commandElement.style.fontWeight = 'bold'
 		const statusElement = await this.getStatusElement()
 		this.statusElement = statusElement
@@ -128,6 +139,8 @@ class WebComponent extends HTMLElement {
 		})
 		element.appendChild(statusElement)
 		element.appendChild(commandElement)
+		element.appendChild(this.timeElement)
+		element.appendChild(fillerElement)
 		element.appendChild(this.killButton)
 		element.appendChild(this.expandButton)
 		// element.appendChild(buttonAreaElement)
@@ -170,18 +183,6 @@ class WebComponent extends HTMLElement {
 		// element.innerHTML = 'status'
 		return element
 	}
-	async execute() {
-		const id = this.getAttribute('id')
-		const workingDirectory = this.getAttribute('working-directory')
-		const spawnFilePath = Path.resolve(workingDirectory, id, 'spawn.sh')
-		const command = `bash ${spawnFilePath}`
-		console.log('command:', command)
-		ChildProcess.exec(`bash ${spawnFilePath}`, (error) => {
-			if (error) {
-				console.error(error)
-			}
-		})
-	}
 	async getButtonAreaElement() {
 		const element = document.createElement('div')
 		element.innerHTML = 'execute'
@@ -191,8 +192,7 @@ class WebComponent extends HTMLElement {
 	}
 	async getCommandElement() {
 		const id = this.getAttribute('id')
-		const workingDirectory = this.getAttribute('working-directory')
-		const commandFilePath = Path.resolve(workingDirectory, id, 'command.sh')
+		const commandFilePath = PathGenerator.getCommandFilePath(id)
 		const buffer = await FsExtra.readFile(commandFilePath)
 		const element = document.createElement('div')
 		element.innerHTML = buffer.toString()

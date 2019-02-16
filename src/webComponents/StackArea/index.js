@@ -59,7 +59,7 @@ class WebComponent extends HTMLElement {
 		)
 	}
 	addEntryElement(id) {
-		const element = document.createElement(Entry)
+		const element = document.createElement(Entry, { id })
 		element.setAttribute('working-directory', this.workingDirectory)
 		element.setAttribute('id', id)
 		this.shadowRoot.appendChild(element)
