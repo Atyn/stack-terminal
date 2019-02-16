@@ -38,15 +38,8 @@ class WebComponent extends HTMLElement {
 		const shadowRoot = this.attachShadow({ mode: 'open' })
 		const commandArea = templates.commandArea.cloneNode(true)
 		const stackArea = templates.stackArea.cloneNode(true)
-		const directoryElement = document.createElement('div')
-		directoryElement.style.padding = 'var(--default-margin)'
-		directoryElement.style.color = '#44ff3b'
-		directoryElement.innerHTML = this.getWorkingDirectory()
-		directoryElement.style.fontWeight = 'bold'
-		this.directoryElement = directoryElement
 		stackArea.setAttribute('working-directory', workingDirectory)
 		shadowRoot.appendChild(stackArea)
-		shadowRoot.appendChild(directoryElement)
 		shadowRoot.appendChild(commandArea)
 		commandArea.addEventListener('command', this.onCommand.bind(this))
 	
