@@ -2,12 +2,14 @@ import FileContentViewer from '../FileContent'
 import FsExtra from 'fs-extra'
 import Path from 'path'
 import ChildProcess from 'child_process'
+import CommandRunner from '../../utils/CommandRunner'
+import FileSyncer from '../../utils/FileSyncer'
 
 const tagName = 'terminal-entry'
 export default tagName
 
 const templates = {
-	root: document.createElement('div'),
+	root: document.createElement('div'),	
 }
 
 const hostStyle = {
@@ -26,9 +28,24 @@ class WebComponent extends HTMLElement {
 		// this.listener = this.onFileChanged.bind(this)
 		const shadowRoot = this.attachShadow({ mode: 'open' })
 	}
+	async expand() {
+		if (this.outputElement) {
+			this.outputElement.remove()
+			this.outputElement = null
+		} else {
+			const outputElement = await this.getOutputElement()
+			this.outputElement = outputElement
+			this.rootElement.appendChild(outputElement)
+		}
+	}
+	kill() {
+		const id = this.getAttribute('id')
+		CommandRunner.kill(id)
+	}
 	async connectedCallback() {
 		Object.assign(this.style, hostStyle)
 		const rootElement = await this.getRootElement()
+		this.rootElement = rootElement
 		this.shadowRoot.appendChild(rootElement)
 		const id = this.getAttribute('id')
 		const workingDirectory = this.getAttribute('working-directory')		
@@ -55,8 +72,28 @@ class WebComponent extends HTMLElement {
 			this.statusElement.style.color = 'rgb(68, 255, 59)'
 		}
 	}
+	async getKillButton() {
+		const element = document.createElement('div')
+		element.innerHTML = 'KILL'
+		element.addEventListener('click', this.kill.bind(this))
+		Object.assign(element.style, {
+			cursor: 'pointer',
+		})
+		return element
+	}
+	async getExpandButton() {
+		const element = document.createElement('div')
+		element.innerHTML = 'EXPAND'
+		element.addEventListener('click', this.expand.bind(this))
+		Object.assign(element.style, {
+			cursor: 'pointer',
+		})
+		return element
+	}
 	async getRowElement() {
 		const commandElement = await this.getCommandElement()
+		const killButton = await this.getKillButton()		
+		const expandButton = await this.getExpandButton()
 		commandElement.style.flexGrow = 1
 		commandElement.style.fontWeight = 'bold'
 		const statusElement = await this.getStatusElement()
@@ -75,6 +112,8 @@ class WebComponent extends HTMLElement {
 		})
 		element.appendChild(statusElement)
 		element.appendChild(commandElement)
+		element.appendChild(killButton)
+		element.appendChild(expandButton)
 		// element.appendChild(buttonAreaElement)
 		return element
 	}
@@ -84,10 +123,8 @@ class WebComponent extends HTMLElement {
 		const resultElement = await this.getResultElement()
 		const rowElement = await this.getRowElement()
 		const element = document.createElement('div')
-		const outputElement = document.createElement(FileContentViewer)
-		outputElement.style.padding = 'var(--default-margin)'
-		outputElement.setAttribute('working-directory', workingDirectory)
-		outputElement.setAttribute('job-id', id)
+		const outputElement = await this.getOutputElement()
+		this.outputElement = outputElement
 		element.appendChild(rowElement)
 		element.appendChild(resultElement)
 		element.appendChild(outputElement)
@@ -95,6 +132,15 @@ class WebComponent extends HTMLElement {
 		element.style.flexDirection = 'column'
 		element.style.position = 'relative'
 		return element
+	}
+	async getOutputElement() {
+		const workingDirectory = this.getAttribute('working-directory')
+		const id = this.getAttribute('id')
+		const outputElement = document.createElement(FileContentViewer)
+		outputElement.style.padding = 'var(--default-margin)'
+		outputElement.setAttribute('working-directory', workingDirectory)
+		outputElement.setAttribute('job-id', id)
+		return outputElement
 	}
 	async getStatusElement() {
 		const element = document.createElement('div')

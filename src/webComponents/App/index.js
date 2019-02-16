@@ -79,14 +79,9 @@ class WebComponent extends HTMLElement {
 	async connectedCallback() {
 		Object.assign(this.style, hostStyle)
 		this.watcher = FsExtra.watch(workingDirectory, this.listener)
-		const list = await FsExtra.readdir(workingDirectory)
-		this.list = list
-		this.highestId = Math.max(0, ...list.map(id => parseInt(id)))
 	}
 	async createCommandObject(command) {
-		this.highestId++
-		const id = String(this.highestId)
-		CommandRunner.run(id, command)
+		CommandRunner.run(command, this.workingDirectory)
 	}
 }
 

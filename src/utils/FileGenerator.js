@@ -24,8 +24,9 @@ export default {
 		const startFilePath = PathGenerator.getStartFilePath(id)
 		const pidFilePath = PathGenerator.getPidFilePath(id)
 		return [
+			'#!/bin/bash',
 			`sh ${startFilePath} &`,
-			`$! > ${pidFilePath}`,
+			`echo $$ > ${pidFilePath}`,
 		].join('\n')
 		// `sh ${startFilePath} & echo $! > ${pidFilePath}`
 	},

@@ -1,6 +1,8 @@
 import FsExtra from 'fs-extra'
 import Path from 'path'
 import { Terminal } from 'xterm'
+import FileSyncer from '../../utils/FileSyncer'
+import PathGenerator from '../../utils/PathGenerator'
 
 const tagName = 'terminal-file-content'
 export default tagName
@@ -55,10 +57,18 @@ class WebComponent extends HTMLElement {
 		// term.write('Hello from \x1B[1;3;31mxterm.js\x1B[0m $ ')
 
 	}
+	async disconnectedCallback() {
+		this.fileWatcher.close()
+	}
 	async connectedCallback() {
-		Object.assign(this.style, hostStyle)
-		const workingDirectory = this.getAttribute('working-directory')
+		// const workingDirectory = this.getAttribute('working-directory')
 		const id = this.getAttribute('job-id')
+		this.fileWatcher = FileSyncer.sync(
+			PathGenerator.getOutputFilePath(id),
+			this.updateContentFromFile.bind(this)
+		)
+		Object.assign(this.style, hostStyle)
+		/*
 		const directory = Path.resolve(workingDirectory, id)
 		this.watcher = FsExtra.watch(directory, this.listener)
 		// Doest file exists?
@@ -67,18 +77,21 @@ class WebComponent extends HTMLElement {
 		if (exists) {
 			await this.updateContentFromFile()
 		}
+		*/
 	}
 	async onFileChanged(type, filepath) {
 		if (filepath === filename) {
 			this.updateContentFromFile()
 		}
 	}
-	async updateContentFromFile() {
+	updateContentFromFile(content) {
+		/*
 		const workingDirectory = this.getAttribute('working-directory')
 		const id = this.getAttribute('job-id')
 		const filepath = Path.resolve(workingDirectory, id, filename)
 		const buffer = await FsExtra.readFile(filepath)
-		this.pre.innerHTML = buffer.toString()
+		*/
+		this.pre.innerHTML = content
 	}
 	async getRowElement() {
 		const commandElement = await this.getCommandElement()
