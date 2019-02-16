@@ -1,4 +1,3 @@
-
 import PathGenerator from './PathGenerator'
 import Path from 'path'
 
@@ -6,14 +5,13 @@ export default {
 	getCwdFileContent(workingDirectory) {
 		return workingDirectory
 	},
-	getStartFileContent(id, workingDirectory) {
+	getStartFileContent(id) {
 		const cwdFilePath = PathGenerator.getCwdFilePath(id)
 		const commandFilePath = PathGenerator.getCommandFilePath(id)
 		const outputFilePath = PathGenerator.getOutputFilePath(id)
 		return [
 			'#!/bin/bash',
 			`cd $(cat ${cwdFilePath})`,
-			'pwd',
 			[
 				'sh',
 				commandFilePath,
@@ -25,6 +23,13 @@ export default {
 	getSpawnFileContent(id) {
 		const startFilePath = PathGenerator.getStartFilePath(id)
 		const pidFilePath = PathGenerator.getPidFilePath(id)
-		return `sh ${startFilePath} & echo $! > ${pidFilePath}`
+		return [
+			`sh ${startFilePath} &`,
+			`$! > ${pidFilePath}`,
+		].join('\n')
+		// `sh ${startFilePath} & echo $! > ${pidFilePath}`
+	},
+	runCommand(id, command) {
+
 	},
 }

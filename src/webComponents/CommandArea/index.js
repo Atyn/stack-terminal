@@ -39,7 +39,12 @@ class WebComponent extends HTMLElement {
 				input.value = ''
 			}
 		})
+		this.input = input
 		shadowRoot.appendChild(input)
+	}
+	focus() {
+		this.input.focus()
+		console.log('focus')
 	}
 	connectedCallback() {
 		Object.assign(this.style, hostStyle)

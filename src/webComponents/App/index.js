@@ -3,7 +3,9 @@ import StackArea from '../StackArea'
 import Path from 'path'
 import FsExtra from 'fs-extra'
 import ChildProcess from 'child_process'
-
+import FileGenerator from '../../utils/FileGenerator'
+import PathGenerator from '../../utils/PathGenerator'
+import CommandRunner from '../../utils/CommandRunner'
 const Os = require('os')
 
 const tmpDir = Os.tmpdir()
@@ -41,13 +43,13 @@ class WebComponent extends HTMLElement {
 		directoryElement.style.color = '#44ff3b'
 		directoryElement.innerHTML = this.getWorkingDirectory()
 		directoryElement.style.fontWeight = 'bold'
-
 		this.directoryElement = directoryElement
 		stackArea.setAttribute('working-directory', workingDirectory)
 		shadowRoot.appendChild(stackArea)
 		shadowRoot.appendChild(directoryElement)
 		shadowRoot.appendChild(commandArea)
 		commandArea.addEventListener('command', this.onCommand.bind(this))
+	
 	}
 	async onCommand(event) {
 		const command = event.detail
@@ -84,42 +86,7 @@ class WebComponent extends HTMLElement {
 	async createCommandObject(command) {
 		this.highestId++
 		const id = String(this.highestId)
-		const directoryPath = Path.resolve(workingDirectory, id)
-		const commandFilePath = Path.resolve(workingDirectory, id, 'command.sh')
-		const startFilePath = Path.resolve(workingDirectory, id, 'start.sh')
-		const cwdFilePath = Path.resolve(workingDirectory, id, 'cwd')
-		const spawnFilePath = Path.resolve(workingDirectory, id, 'spawn.sh')
-		const pidFilePath = Path.resolve(workingDirectory, id, 'pid')
-		const spawnFileContent = `sh ${startFilePath} & echo $! > ${pidFilePath}`
-		const startContent = [
-			'#!/bin/bash',
-			`cd $(cat ${cwdFilePath})`,
-			'pwd',
-			[
-				'sh',
-				Path.resolve(workingDirectory, id, 'command.sh'),
-				'>',
-				Path.resolve(workingDirectory, id, 'output'),
-			].join(' '),
-		].join('\n')
-		await FsExtra.mkdirp(directoryPath)
-		await Promise.all([
-			FsExtra.writeFile(commandFilePath, [
-				'#!/bin/bash',
-				command,
-				'echo $? > ' + Path.resolve(workingDirectory, id, 'exitstatus'),
-			].join('\n')),
-			FsExtra.writeFile(spawnFilePath, spawnFileContent),
-			FsExtra.writeFile(cwdFilePath, this.getWorkingDirectory()),
-			FsExtra.writeFile(startFilePath, startContent),
-		])
-		// Execute
-		ChildProcess.exec(`bash ${spawnFilePath}`, (error) => {
-			if (error) {
-				console.error(error)
-			}
-		})
-
+		CommandRunner.run(id, command)
 	}
 }
 

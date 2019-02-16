@@ -52,7 +52,6 @@ module.exports = {
       'no-unused-vars': warn,
       'indent': indent,
       'no-const-assign': error,
-      'react/display-name': off,
 
       // No bloated code
       'no-alert': warn,
@@ -77,7 +76,6 @@ module.exports = {
       'no-use-before-define': [warn, { functions: false }],
 
        // Looking good
-      'react/jsx-max-props-per-line': [warn, { maximum: 1 }],
       'yoda': warn,
       'no-multi-spaces': error,
       'no-multiple-empty-lines': [ warn, { max: 1 }],
