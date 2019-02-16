@@ -33,13 +33,16 @@ class WebComponent extends HTMLElement {
 				threshold:  1.0,
 				root:       document.body,
 			})
-		this.killButton = this.getKillButton()		
+		this.killButton = this.getKillButton()
+		this.expandButton = this.getExpandButton()
 	}
 	async expand() {
 		if (this.outputElement) {
+			this.expandButton.style.transform = 'rotate(-90deg)'
 			this.outputElement.remove()
 			this.outputElement = null
 		} else {
+			this.expandButton.style.transform = 'rotate(90deg)'
 			const outputElement = await this.getOutputElement()
 			this.outputElement = outputElement
 			this.rootElement.appendChild(outputElement)
@@ -83,26 +86,30 @@ class WebComponent extends HTMLElement {
 	}
 	getKillButton() {
 		const element = document.createElement('div')
-		element.innerHTML = ' KILL '
+		element.innerHTML = 'X'
 		element.addEventListener('click', this.kill.bind(this))
 		Object.assign(element.style, {
-			cursor: 'pointer',
+			cursor:     'pointer',
+			fontWeight: 'bold',
+			padding:    'var(--default-margin)',
 		})
 		return element
 	}
-	async getExpandButton() {
+	getExpandButton() {
 		const element = document.createElement('div')
-		element.innerHTML = ' EXPAND '
+		element.innerHTML = '>'
 		element.addEventListener('click', this.expand.bind(this))
 		Object.assign(element.style, {
-			cursor: 'pointer',
+			cursor:     'pointer',
+			fontWeight: 'bold',
+			padding:    'var(--default-margin)',
+			transition: 'transform 0.6s',
+			transform:  'rotate(90deg)',
 		})
 		return element
 	}
 	async getRowElement() {
 		const commandElement = await this.getCommandElement()
-		
-		const expandButton = await this.getExpandButton()
 		commandElement.style.flexGrow = 1
 		commandElement.style.fontWeight = 'bold'
 		const statusElement = await this.getStatusElement()
@@ -122,7 +129,7 @@ class WebComponent extends HTMLElement {
 		element.appendChild(statusElement)
 		element.appendChild(commandElement)
 		element.appendChild(this.killButton)
-		element.appendChild(expandButton)
+		element.appendChild(this.expandButton)
 		// element.appendChild(buttonAreaElement)
 		return element
 	}
