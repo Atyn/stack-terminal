@@ -8,6 +8,10 @@ export default {
 		const watcher = FsExtra.watch(Path.dirname(filepath), onChange)
 		setTimeout(firstRead, 1)
 		return {
+			// TODO: implement pause
+			pause() {
+
+			},
 			close() {
 				watcher.close()
 			},

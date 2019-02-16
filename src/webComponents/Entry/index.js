@@ -27,6 +27,12 @@ class WebComponent extends HTMLElement {
 		super()
 		// this.listener = this.onFileChanged.bind(this)
 		const shadowRoot = this.attachShadow({ mode: 'open' })
+		this.intersectionObserver = new IntersectionObserver(
+			this.onIntersection.bind(this), {
+				rootMargin: '0px',
+				threshold:  1.0,
+				root:       document.body,
+			})
 	}
 	async expand() {
 		if (this.outputElement) {
@@ -42,6 +48,11 @@ class WebComponent extends HTMLElement {
 		const id = this.getAttribute('id')
 		CommandRunner.kill(id)
 	}
+	onIntersection(entries) {
+	}
+	disconnectedCallback() {
+		this.intersectionObserver.unobserve()
+	}
 	async connectedCallback() {
 		Object.assign(this.style, hostStyle)
 		const rootElement = await this.getRootElement()
@@ -54,6 +65,7 @@ class WebComponent extends HTMLElement {
 			this.onFileChange.bind(this)
 		)
 		this.checkStatus()
+		this.intersectionObserver.observe(rootElement)
 	}
 	onFileChange(type, filepath) {
 		if (filepath === 'status') {
