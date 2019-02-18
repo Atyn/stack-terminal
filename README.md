@@ -1,5 +1,7 @@
 # stack-terminal
 
+![screenshot](https://raw.githubusercontent.com/Atyn/stack-terminal/master/sceenshot.png)
+
 ## Advantages
 
 ### Copy, paste and selecting text as you know it
