@@ -41,9 +41,9 @@ class WebComponent extends HTMLElement {
 		stackArea.setAttribute('working-directory', workingDirectory)
 		shadowRoot.appendChild(stackArea)
 		shadowRoot.appendChild(commandArea)
-		commandArea.addEventListener('command', this.onCommand.bind(this))
-	
+		// commandArea.addEventListener('command', this.onCommand.bind(this))
 	}
+	/*
 	async onCommand(event) {
 		const command = event.detail
 		if (command === 'cd') {
@@ -66,6 +66,7 @@ class WebComponent extends HTMLElement {
 			this.createCommandObject(command)
 		}
 	}
+	*/
 	getWorkingDirectory() {
 		return this.workingDirectory
 	}
@@ -73,9 +74,11 @@ class WebComponent extends HTMLElement {
 		Object.assign(this.style, hostStyle)
 		this.watcher = FsExtra.watch(workingDirectory, this.listener)
 	}
+	/*
 	async createCommandObject(command) {
 		CommandRunner.run(command, this.workingDirectory)
 	}
+	*/
 }
 
 customElements.define(tagName, WebComponent)

@@ -1,6 +1,7 @@
 import FsExtra from 'fs-extra'
 import Path from 'path'
 import SuggestionGenerator from '../../utils/SuggestionGenerator'
+import CommandRunner from '../../utils/CommandRunner'
 
 const tagName = 'terminal-command-area'
 export default tagName
@@ -146,7 +147,7 @@ class WebComponent extends HTMLElement {
 			}
 			// this.workingDirectory = this.workingDirectory
 		} else {
-			this.createCommandObject(command)
+			CommandRunner.run(command, this.workingDirectory)
 		}
 	}
 	focus() {
