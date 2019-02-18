@@ -9,7 +9,7 @@
     "start-electron-production-app": "electron electron-apps/production",
     "serve": "npm run start-electron-serve-app && webpack-dev-server --mode=development",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack"
+    "build": "webpack --mode=production"
   },
   "repository": {
     "type": "git",

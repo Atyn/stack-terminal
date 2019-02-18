@@ -39,8 +39,8 @@ export default {
 	async getNpmCommandList(cwd) {
 		const commandList = [
 			'start',
-			'install',
-			'uninstall',
+			'install ',
+			'uninstall ',
 		]
 		try {
 			const packageJson = await FsExtra.readFile(

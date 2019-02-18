@@ -29,6 +29,7 @@ templates.input.style.color = 'inherit'
 const styleElement = document.createElement('style')
 styleElement.innerHTML = `
 	button:focus {
+		cursor: pointer;
 		outline: none;
 		background-color: rgba(255,255,255,0.1) !important;
 	}
@@ -53,6 +54,7 @@ class WebComponent extends HTMLElement {
 			}
 		}, { passive: false })
 		shadowRoot.addEventListener('keydown', (event) => {
+			
 			if (
 				event.code === 'Enter' && 
 				!event.shiftKey
@@ -138,6 +140,7 @@ class WebComponent extends HTMLElement {
 	onSuggestionClick(value) {
 		this.elements.input.value += value
 		this.elements.input.focus()
+		this.onInput()
 	}
 	async onCommand(command) {
 		if (command === 'cd') {
