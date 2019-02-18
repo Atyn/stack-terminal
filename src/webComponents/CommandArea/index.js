@@ -26,16 +26,25 @@ templates.input.style.font = 'inherit'
 templates.input.style.backgroundColor = 'rgba(255,255,255,0.1)'
 templates.input.style.color = 'inherit'
 
+const styleElement = document.createElement('style')
+styleElement.innerHTML = `
+	button:focus {
+		outline: none;
+		background-color: rgba(255,255,255,0.1) !important;
+	}
+`
+
 class WebComponent extends HTMLElement {
 	constructor() {
 		super()
 		this.workingDirectory = process.cwd()
+		const shadowRoot = this.attachShadow({ mode: 'open' })
+
 		this.elements = {
 			cwdElement:        this.getCwdElement(),
 			suggestionElement: this.getSuggestionsElement(),
 			input:             templates.input.cloneNode(true),
 		}
-		const shadowRoot = this.attachShadow({ mode: 'open' })
 		this.elements.input.setAttribute('tabindex', -1)
 		this.elements.input.addEventListener('keydown', (event) => {
 			if (event.code === 'Tab') {
@@ -61,6 +70,7 @@ class WebComponent extends HTMLElement {
 			}
 		})
 		this.elements.input.addEventListener('input', this.onInput.bind(this))
+		shadowRoot.appendChild(styleElement.cloneNode(true))
 		shadowRoot.appendChild(this.elements.cwdElement)
 		shadowRoot.appendChild(this.elements.suggestionElement)
 		shadowRoot.appendChild(this.elements.input)
@@ -110,13 +120,13 @@ class WebComponent extends HTMLElement {
 	getSuggestionElement(name, index) {
 		const element = document.createElement('button')
 		Object.assign(element.style, {
-			border:     'none',
-			display:    'flex',
-			margin:     '0',
-			padding:    '0',
-			background: 'initial',
-			color:      'currentColor',
-			font:       'inherit',
+			border:          'none',
+			display:         'flex',
+			margin:          '0',
+			padding:         '0',
+			backgroundColor: 'initial',
+			color:           'currentColor',
+			font:            'inherit',
 		})
 		element.addEventListener('click', (event) => {
 			this.onSuggestionClick(name)

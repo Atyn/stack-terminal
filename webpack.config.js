@@ -5,12 +5,11 @@ const excluedModules = [
 	'fs-extra',
 	'path',
 	'os',
+	'child_process',
 ]
 excluedModules.forEach(name => {
 	externals[name] = `require('${name}')`
 })
-
-console.log(externals)
 
 module.exports = {
 	externals,
