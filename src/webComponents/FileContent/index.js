@@ -21,10 +21,9 @@ Object.assign(templates.canvas.style, {
 })
 
 Object.assign(templates.pre.style, {
-	flexGrow:      1,
-	fontFamily:    'inherit',
-	margin:        0,
-	'white-space': 'pre-line',
+	flexGrow:   1,
+	fontFamily: 'inherit',
+	margin:     0,
 })
 
 const hostStyle = {

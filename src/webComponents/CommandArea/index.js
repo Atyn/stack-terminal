@@ -3,6 +3,7 @@ import Path from 'path'
 import SuggestionGenerator from '../../utils/SuggestionGenerator'
 import CommandRunner from '../../utils/CommandRunner'
 import Formatter from '../../utils/Formatter'
+import { eventNames } from 'cluster'
 
 const tagName = 'terminal-command-area'
 export default tagName
@@ -36,6 +37,10 @@ styleElement.innerHTML = `
 	button:focus {
 		outline: none;
 		background-color: rgba(255,255,255,0.1) !important;
+	}
+	pre {
+		font-family:    inherit;
+		margin:         0;
 	}
 `
 
@@ -110,6 +115,14 @@ class WebComponent extends HTMLElement {
 	getSuggestionsElement() {
 		const element = document.createElement('ul')
 		element.addEventListener('keydown', (event) => {
+			if (event.code === 'ArrowDown') { // focus next
+				console.log(event)
+				console.log(document.activeElement)
+				const selectedElement = event.path[0]
+			}
+			if (event.code === 'ArrowUp') { // focus next
+				console.log(event)
+			}
 			if (event.code === 'Enter') {
 				event.stopPropagation()
 				// this.elements.suggestionElement.children[0].focus()
@@ -128,17 +141,17 @@ class WebComponent extends HTMLElement {
 	getSuggestionElement(suggestionObject, index) {
 		const element = document.createElement('button')
 		if (suggestionObject.prefix) {
-			const prefixElement = document.createElement('span')
+			const prefixElement = document.createElement('pre')
 			prefixElement.style.opacity = '0.5'
-			prefixElement.innerText = suggestionObject.prefix
+			prefixElement.innerHTML = suggestionObject.prefix
 			element.appendChild(prefixElement)
 		}
-		const valueElement = document.createElement('span')
+		const valueElement = document.createElement('pre')
 		element.appendChild(valueElement)
-		valueElement.innerText = suggestionObject.value
+		valueElement.innerHTML = suggestionObject.value
 		if (suggestionObject.description) {
-			const descriptionElement = document.createElement('span')
-			descriptionElement.innerText = suggestionObject.description
+			const descriptionElement = document.createElement('pre')
+			descriptionElement.innerHTML = suggestionObject.description
 			element.appendChild(descriptionElement)
 		}
 		Object.assign(element.style, {

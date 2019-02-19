@@ -13,6 +13,9 @@ const config = [{
 }, {
 	regExp:         /^git\s/,
 	getSuggestions: getGitBranchCommands,
+}, {
+	regExp:         /^npm\s/,
+	getSuggestions: getNpmCommands,
 }]
 
 /**
@@ -44,6 +47,46 @@ async function getPaths(regExp, cwd, command) {
 					.replace(/^\//, ''),
 			}
 		})
+}
+
+async function getNpmCommands(regExp, cwd, command) {
+	const str = command.replace(regExp, '')
+	const commandList = [
+		'start',
+		'install',
+		'uninstall',
+	]
+	console.log(str.length)
+	
+	try {
+		const packageJson = await FsExtra.readFile(
+			Path.resolve(cwd, 'package.json')
+		)
+		const obj = JSON.parse(packageJson.toString())
+		const list = [
+			...commandList,
+			...Object.keys(obj.scripts)
+				.map(scriptName => ['run', scriptName].join(' ')),		
+		]
+
+		return list
+			.filter(name => name.startsWith(str))
+			.map(name => {
+
+				console.log(({
+					prefix: str,
+					value:  name.replace(str, ''),
+				}))
+				
+				return name
+			})
+			.map(name => ({
+				prefix: str,
+				value:  name.replace(str, ''),
+			}))
+	} catch (error) {
+		return commandList
+	}
 }
 
 async function getGitBranchCommands(regExp, cwd, command) {
