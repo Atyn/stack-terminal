@@ -27,19 +27,32 @@ const hostStyle = {
 const templates = {
 	stackArea:   document.createElement(StackArea),
 	commandArea: document.createElement(CommandArea),
+	root:        document.createElement('div'),
 }
-
+Object.assign(templates.root.style, {
+	display:       'flex',
+	flexDirection: 'column',
+	flexGrow:      1,
+	overflow:      'hidden',
+})
 Object.assign(templates.commandArea.style, {
 	display:       'flex',
 	flexDirection: 'column',
+	flexShrink:    0,
+	maxHeight:     '100%',
 })
-
-templates.stackArea.style.flexGrow = 1
+Object.assign(templates.stackArea.style, {
+	display:       'flex',
+	flexDirection: 'column',
+	flexShrink:    1,
+	flexGrow:      1,
+})
 
 class WebComponent extends HTMLElement {
 	constructor() {
 		super()
 		this.workingDirectory = process.cwd()
+		const rootElement = templates.root.cloneNode(true)
 		const shadowRoot = this.attachShadow({ mode: 'open' })
 		const commandArea = templates.commandArea.cloneNode(true)
 		const stackArea = templates.stackArea.cloneNode(true)
@@ -47,8 +60,9 @@ class WebComponent extends HTMLElement {
 		//	commandArea.focus()	
 		})
 		stackArea.setAttribute('working-directory', workingDirectory)
-		shadowRoot.appendChild(stackArea)
-		shadowRoot.appendChild(commandArea)
+		shadowRoot.appendChild(rootElement)
+		rootElement.appendChild(stackArea)
+		rootElement.appendChild(commandArea)
 		// commandArea.addEventListener('command', this.onCommand.bind(this))
 	}
 	/*

@@ -18,15 +18,17 @@ const hostStyle = {
 	flexShrink:    0,
 }
 Object.assign(templates.input.style, {
-	outline: 'none',
-	border:  'none',
-	padding: 'calc(2 * var(--default-margin))',
+	outline:    'none',
+	border:     'none',
+	padding:    'calc(2 * var(--default-margin))',
+	flexShrink: 0,
 })
 
 Object.assign(templates.root.style, {
 	display:       'flex',
 	flexDirection: 'column',
 	maxHeight:     '100%',
+	flexShrink:    0,
 })
 
 templates.input.style['-webkit-appearance'] = 'none'
@@ -155,6 +157,8 @@ class WebComponent extends HTMLElement {
 			padding:       'var(--default-margin)',
 			overflowY:     'scroll',
 			overflowX:     'hidden',
+			flexShrink:    0,
+			maxHeight:     '400px',
 		})
 		return element
 	}
@@ -182,6 +186,7 @@ class WebComponent extends HTMLElement {
 			backgroundColor: 'initial',
 			color:           'currentColor',
 			font:            'inherit',
+			flexShrink:      0,
 		})
 		element.addEventListener('click', (event) => {
 			this.onSuggestionClick(suggestionObject.value)

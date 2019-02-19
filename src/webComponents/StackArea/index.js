@@ -5,6 +5,7 @@ const tagName = 'terminal-stack-area'
 const hostStyle = {
 	overflowY: 'scroll',
 	overflowX: 'hidden',
+	display:   'flex',
 	// 'scroll-behavior': 'smooth',
 }
 const mutationObserverConfig = {
@@ -62,6 +63,7 @@ class WebComponent extends HTMLElement {
 		const element = document.createElement(Entry, { id })
 		element.setAttribute('working-directory', this.workingDirectory)
 		element.setAttribute('id', id)
+		element.style.flexShrink = 0
 		this.shadowRoot.appendChild(element)
 	}
 }
