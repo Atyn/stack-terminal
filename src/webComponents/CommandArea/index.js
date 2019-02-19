@@ -87,7 +87,13 @@ class WebComponent extends HTMLElement {
 		element.innerText = this.workingDirectory
 		return element
 	}
+	formatInputValue() {
+		this.elements.input.value = this.elements.input.value
+			.replace(/^\s+/gm, '')
+			.replace(/\s+/gm, ' ')
+	}
 	async onInput() {
+		this.formatInputValue()
 		const suggestions = await SuggestionGenerator.getSuggestions(
 			this.workingDirectory,
 			this.elements.input.value
