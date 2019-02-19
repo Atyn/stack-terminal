@@ -1,28 +1,96 @@
 import Path from 'path'
 import FsExtra from 'fs-extra'
 
+const config = [{
+	regExp:         /^cd\s/,
+	getSuggestions: getPaths,
+}, {
+	regExp:         /^ls\s(-\S+\s)?/,
+	getSuggestions: getPaths,
+}, {
+	regExp:         /^git\sbranch\s/,
+	getSuggestions: getGitCommands,
+}, {
+	regExp:         /^git\s/,
+	getSuggestions: getGitBranchCommands,
+}]
+
+/**
+ * @param {String} cwd 
+ * @param {String} command 
+ */
+async function getPaths(regExp, cwd, command) {
+	const str = command.replace(regExp, '')
+	const directories = str.split('/')
+	const preDirectories = directories.slice(0, directories.length - 1)
+	const directoryPath = Path.join(cwd, ...preDirectories)
+	const directoryList = await getDirectoryList(directoryPath)
+	const list = [
+		'../',
+		...directoryList,
+	]
+	const firstPart = Path.join(cwd, str)	
+	return list
+		.filter(directory => directory.startsWith(firstPart))
+		.map(directory => {
+			const value = directory
+				.replace(firstPart, '')
+			return {
+				prefix: directory
+					.replace(directoryPath, '')
+					.replace(value, '')
+					.replace(/^\//, ''),
+				value: value
+					.replace(/^\//, ''),
+			}
+		})
+}
+
+async function getGitBranchCommands(regExp, cwd, command) {
+
+}
+
+async function getGitCommands(regExp, cwd, command) {
+	const str = command.replace(regExp, '')
+	return [
+		'pull',
+		'checkout',
+		'status',
+		'push',
+		'commit',
+		'branch',
+	]
+		.filter(directory => directory.startsWith(str))
+		.map(name => ({
+			prefix: str,
+			value:  name.replace(str, '') + ' ',
+		}))
+}
+
 export default {
-	async getSuggestions(cwd, command) {
-		switch (command) {
-			case 'cd ':
-				return await this.getDirectoryList(cwd)
-			case 'npm ':
-				return await this.getNpmCommandList(cwd)
-			case 'npm uninstall ':
-				return await this.getNpmUninstallList(cwd)
-			case 'git ':
-				return await this.getGitCommands(cwd)
-		}
-		return null
+	/*
+	config: {
+		'git':           this.getGitCommands,
+		'git branch':    this.getGitBranchList, 
+		'npm':           this.getNpmUninstallList,
+		'npm uninstall': this.getNpmUninstallList,
 	},
-	async getGitCommands() {
-		return [
-			'pull',
-			'checkout',
-			'status',
-			'push',
-			'commit',
-		]
+	*/
+
+	/**
+	 * @param {String} cwd 
+	 * @param {String} command 
+	 */
+	async getSuggestions(cwd, command) {
+		for (const configObject of config) {			
+			if (configObject.regExp.test(command)) {
+				return await configObject.getSuggestions(
+					configObject.regExp,
+					cwd,
+					command
+				)
+			}
+		}
 	},
 	async getNpmUninstallList(cwd) {
 		try {
@@ -74,5 +142,24 @@ export default {
 		return objectList
 			.filter(obj => obj.isDirectory)
 			.map(obj => obj.name + '/')
+			.map(name => Path.join(cwd, name))
 	},
+}
+
+async function getDirectoryList(cwd) {
+	const list = await FsExtra.readdirSync(cwd)
+	const objectList = await Promise.all(
+		list.map(async(name) => {
+			const path = Path.resolve(cwd, name)
+			const stats = await FsExtra.lstat(path)
+			return {
+				name, 
+				isDirectory: stats.isDirectory(),
+			}
+		})
+	)
+	return objectList
+		.filter(obj => obj.isDirectory)
+		.map(obj => obj.name + '/')
+		.map(name => Path.join(cwd, name))
 }

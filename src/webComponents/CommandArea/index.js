@@ -2,6 +2,7 @@ import FsExtra from 'fs-extra'
 import Path from 'path'
 import SuggestionGenerator from '../../utils/SuggestionGenerator'
 import CommandRunner from '../../utils/CommandRunner'
+import Formatter from '../../utils/Formatter'
 
 const tagName = 'terminal-command-area'
 export default tagName
@@ -28,8 +29,11 @@ templates.input.style.color = 'inherit'
 
 const styleElement = document.createElement('style')
 styleElement.innerHTML = `
-	button:focus {
+	button {
 		cursor: pointer;
+	}
+	button:hover,
+	button:focus {
 		outline: none;
 		background-color: rgba(255,255,255,0.1) !important;
 	}
@@ -87,13 +91,8 @@ class WebComponent extends HTMLElement {
 		element.innerText = this.workingDirectory
 		return element
 	}
-	formatInputValue() {
-		this.elements.input.value = this.elements.input.value
-			.replace(/^\s+/gm, '')
-			.replace(/\s+/gm, ' ')
-	}
 	async onInput() {
-		this.formatInputValue()
+		this.elements.input.value = Formatter.format(this.elements.input.value)
 		const suggestions = await SuggestionGenerator.getSuggestions(
 			this.workingDirectory,
 			this.elements.input.value
@@ -122,11 +121,26 @@ class WebComponent extends HTMLElement {
 			flexWrap:      'wrap',
 			flexDirection: 'column',
 			padding:       'var(--default-margin)',
+			overflowY:     'scroll',
 		})
 		return element
 	}
-	getSuggestionElement(name, index) {
+	getSuggestionElement(suggestionObject, index) {
 		const element = document.createElement('button')
+		if (suggestionObject.prefix) {
+			const prefixElement = document.createElement('span')
+			prefixElement.style.opacity = '0.5'
+			prefixElement.innerText = suggestionObject.prefix
+			element.appendChild(prefixElement)
+		}
+		const valueElement = document.createElement('span')
+		element.appendChild(valueElement)
+		valueElement.innerText = suggestionObject.value
+		if (suggestionObject.description) {
+			const descriptionElement = document.createElement('span')
+			descriptionElement.innerText = suggestionObject.description
+			element.appendChild(descriptionElement)
+		}
 		Object.assign(element.style, {
 			border:          'none',
 			display:         'flex',
@@ -137,10 +151,9 @@ class WebComponent extends HTMLElement {
 			font:            'inherit',
 		})
 		element.addEventListener('click', (event) => {
-			this.onSuggestionClick(name)
+			this.onSuggestionClick(suggestionObject.value)
 		})
-		element.setAttribute('tabindex', index)
-		element.innerText = name
+		element.setAttribute('tabindex', index + 2)
 		return element
 	}
 	onSuggestionClick(value) {
