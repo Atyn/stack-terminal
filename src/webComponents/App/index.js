@@ -29,6 +29,11 @@ const templates = {
 	commandArea: document.createElement(CommandArea),
 }
 
+Object.assign(templates.commandArea.style, {
+	display:       'flex',
+	flexDirection: 'column',
+})
+
 templates.stackArea.style.flexGrow = 1
 
 class WebComponent extends HTMLElement {

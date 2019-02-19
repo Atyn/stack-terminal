@@ -10,6 +10,7 @@ export default tagName
 
 const templates = {
 	input: document.createElement('input'),
+	root:  document.createElement('div'),
 }
 const hostStyle = {
 	display:       'flex',
@@ -21,6 +22,13 @@ Object.assign(templates.input.style, {
 	border:  'none',
 	padding: 'calc(2 * var(--default-margin))',
 })
+
+Object.assign(templates.root.style, {
+	display:       'flex',
+	flexDirection: 'column',
+	maxHeight:     '100%',
+})
+
 templates.input.style['-webkit-appearance'] = 'none'
 templates.input.setAttribute('rows', 1)
 templates.input.setAttribute('autofocus', true)
@@ -32,6 +40,7 @@ const styleElement = document.createElement('style')
 styleElement.innerHTML = `
 	button {
 		cursor: pointer;
+		flex-shrink: 	0;
 	}
 	button:hover,
 	button:focus {
@@ -41,6 +50,7 @@ styleElement.innerHTML = `
 	pre {
 		font-family:    inherit;
 		margin:         0;
+		flex-shrink: 	0;
 	}
 `
 
@@ -49,11 +59,11 @@ class WebComponent extends HTMLElement {
 		super()
 		this.workingDirectory = process.cwd()
 		const shadowRoot = this.attachShadow({ mode: 'open' })
-
 		this.elements = {
 			cwdElement:        this.getCwdElement(),
 			suggestionElement: this.getSuggestionsElement(),
 			input:             templates.input.cloneNode(true),
+			rootElement:       templates.root.cloneNode(true),
 		}
 		this.elements.input.setAttribute('tabindex', -1)
 		this.elements.input.addEventListener('keydown', (event) => {
@@ -81,10 +91,14 @@ class WebComponent extends HTMLElement {
 			}
 		})
 		this.elements.input.addEventListener('input', this.onInput.bind(this))
+		
 		shadowRoot.appendChild(styleElement.cloneNode(true))
-		shadowRoot.appendChild(this.elements.cwdElement)
-		shadowRoot.appendChild(this.elements.suggestionElement)
-		shadowRoot.appendChild(this.elements.input)
+		shadowRoot.appendChild(this.elements.rootElement)
+
+		this.elements.rootElement.appendChild(this.elements.cwdElement)
+		this.elements.rootElement.appendChild(this.elements.cwdElement)
+		this.elements.rootElement.appendChild(this.elements.suggestionElement)
+		this.elements.rootElement.appendChild(this.elements.input)
 	}
 	getCwdElement() {
 		const element = document.createElement('div')
@@ -115,11 +129,17 @@ class WebComponent extends HTMLElement {
 	getSuggestionsElement() {
 		const element = document.createElement('ul')
 		element.addEventListener('keydown', (event) => {
+			switch (event.code) {
+				case 'Escape': {
+					this.elements.input.focus()
+					break
+				}
+			}
 			if (event.code === 'ArrowDown') { // focus next
 				console.log(event)
 				console.log(document.activeElement)
 				const selectedElement = event.path[0]
-			}
+			} 
 			if (event.code === 'ArrowUp') { // focus next
 				console.log(event)
 			}
@@ -131,10 +151,10 @@ class WebComponent extends HTMLElement {
 		Object.assign(element.style, {
 			margin:        '0',
 			display:       'none',
-			flexWrap:      'wrap',
 			flexDirection: 'column',
 			padding:       'var(--default-margin)',
 			overflowY:     'scroll',
+			overflowX:     'hidden',
 		})
 		return element
 	}
@@ -199,9 +219,11 @@ class WebComponent extends HTMLElement {
 		this.input.focus()
 		console.log('focus')
 	}
+	/*
 	connectedCallback() {
 		Object.assign(this.style, hostStyle)
 	}
+	*/
 }
 
 customElements.define(tagName, WebComponent)
