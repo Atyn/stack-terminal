@@ -130,10 +130,10 @@ class WebComponent extends HTMLElement {
 		const element = document.createElement('ul')
 		element.addEventListener('keydown', (event) => {
 			switch (event.code) {
-				case 'Escape': {
+				case 'Backspace':
+				case 'Escape':
 					this.elements.input.focus()
 					break
-				}
 			}
 			if (event.code === 'ArrowDown') { // focus next
 				console.log(event)
@@ -216,8 +216,7 @@ class WebComponent extends HTMLElement {
 		}
 	}
 	focus() {
-		this.input.focus()
-		console.log('focus')
+		this.elements.input.focus()
 	}
 	/*
 	connectedCallback() {

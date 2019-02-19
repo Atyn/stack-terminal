@@ -43,6 +43,9 @@ class WebComponent extends HTMLElement {
 		const shadowRoot = this.attachShadow({ mode: 'open' })
 		const commandArea = templates.commandArea.cloneNode(true)
 		const stackArea = templates.stackArea.cloneNode(true)
+		this.shadowRoot.addEventListener('click', () => {			
+		//	commandArea.focus()	
+		})
 		stackArea.setAttribute('working-directory', workingDirectory)
 		shadowRoot.appendChild(stackArea)
 		shadowRoot.appendChild(commandArea)
