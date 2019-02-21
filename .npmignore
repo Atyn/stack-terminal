@@ -6,3 +6,9 @@ src
 .gitignore
 .git
 .npmignore
+webpack.config.js
+README.md
+index.html
+index.js
+.eslintrc.js
+sceenshot.png
