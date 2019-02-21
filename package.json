@@ -11,6 +11,9 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack --mode=production"
   },
+  "bin": {
+    "async-terminal": "npm run start-electron-production-app"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://atyn@github.com/Atyn/stack-terminal.git"
