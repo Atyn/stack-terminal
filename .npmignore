@@ -1,0 +1,8 @@
+node_modules
+tmp
+src
+.editorconfig
+.eslintrc
+.gitignore
+.git
+.npmignore
