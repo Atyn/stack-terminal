@@ -1,0 +1,13 @@
+{
+    "text": {
+        "fontFamily": "Ubuntu Mono, Andale Mono",
+        "fontSize": "12px"
+    },
+    "colors": {
+        "backgroundColor": "#1f1f1f",
+        "fontColor": "white"
+    },
+    "margins": {
+        "defaultMargin": "7px"
+    }
+}
