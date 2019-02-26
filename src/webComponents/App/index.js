@@ -2,11 +2,9 @@ import CommandArea from '../CommandArea'
 import StackArea from '../StackArea'
 import Path from 'path'
 import FsExtra from 'fs-extra'
-import ChildProcess from 'child_process'
-import FileGenerator from '../../utils/FileGenerator'
+import Os from 'os'
+import UserConfig from '../../configFile.json'
 import PathGenerator from '../../utils/PathGenerator'
-import CommandRunner from '../../utils/CommandRunner'
-const Os = require('os')
 
 const tmpDir = Os.tmpdir()
 const workingDirectory = Path.resolve(tmpDir, 'stack-terminal')
@@ -52,6 +50,7 @@ class WebComponent extends HTMLElement {
 	constructor() {
 		super()
 		this.workingDirectory = process.cwd()
+		this.styleSheet = document.createElement('style')
 		const rootElement = templates.root.cloneNode(true)
 		const shadowRoot = this.attachShadow({ mode: 'open' })
 		const commandArea = templates.commandArea.cloneNode(true)
@@ -60,6 +59,7 @@ class WebComponent extends HTMLElement {
 		//	commandArea.focus()	
 		})
 		stackArea.setAttribute('working-directory', workingDirectory)
+		shadowRoot.appendChild(this.styleSheet)
 		shadowRoot.appendChild(rootElement)
 		rootElement.appendChild(stackArea)
 		rootElement.appendChild(commandArea)
@@ -89,12 +89,33 @@ class WebComponent extends HTMLElement {
 		}
 	}
 	*/
+	updateStyleSheet(config) {
+		this.styleSheet.innerHTML = `
+		:host {
+			--background-color: ${config.colors.backgroundColor};
+			--default-margin: ${config.margins.defaultMargin};
+			font-family: ${config.font.family};
+			background-color: var(--background-color);
+			color: ${config.colors.fontColor};
+		}
+		`
+	}
 	getWorkingDirectory() {
 		return this.workingDirectory
 	}
+	onConfigFileContent(fileContent) {
+		// console.log(fileContent)
+	}
 	async connectedCallback() {
 		Object.assign(this.style, hostStyle)
-		this.watcher = FsExtra.watch(workingDirectory, this.listener)
+		console.log(PathGenerator.getUserConfigFilePath())
+		this.updateStyleSheet(UserConfig)
+		/*
+		FileSyncer.sync(
+			PathGenerator.getUserConfigFilePath(),
+			this.onConfigFileContent.bind(this)
+		)
+		*/
 	}
 	/*
 	async createCommandObject(command) {
