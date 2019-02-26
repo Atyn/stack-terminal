@@ -16,6 +16,9 @@ const config = [{
 }, {
 	regExp:         /^npm\s/,
 	getSuggestions: getNpmCommands,
+}, {
+	regExp:         /^\S+$/,
+	getSuggestions: getExecuteCommands,
 }]
 
 /**
@@ -49,6 +52,27 @@ async function getPaths(regExp, cwd, command) {
 		})
 }
 
+async function getExecuteCommands(regExp, cwd, command) {
+	const paths = process.env.PATH.split(':')
+	const list = await Promise.all(paths.map(getRunnablesInDirectory))
+	const runnables = list.flat()
+	return runnables
+		.filter(runnable => runnable.startsWith(command))
+		.map(name => ({
+			prefix: command,
+			value:  name.replace(command, '') + ' ',
+		}))
+}
+
+async function getRunnablesInDirectory(directory) {
+	const exists = await FsExtra.exists(directory)
+	if (!exists) {
+		return []
+	}
+	const list = await FsExtra.readdir(directory)
+	return list
+}
+
 async function getNpmCommands(regExp, cwd, command) {
 	const str = command.replace(regExp, '')
 	const commandList = [
@@ -56,8 +80,6 @@ async function getNpmCommands(regExp, cwd, command) {
 		'install',
 		'uninstall',
 	]
-	console.log(str.length)
-	
 	try {
 		const packageJson = await FsExtra.readFile(
 			Path.resolve(cwd, 'package.json')
@@ -72,12 +94,6 @@ async function getNpmCommands(regExp, cwd, command) {
 		return list
 			.filter(name => name.startsWith(str))
 			.map(name => {
-
-				console.log(({
-					prefix: str,
-					value:  name.replace(str, ''),
-				}))
-				
 				return name
 			})
 			.map(name => ({
