@@ -19,7 +19,21 @@ const config = [{
 }, {
 	regExp:         /^\S+$/,
 	getSuggestions: getExecuteCommands,
+}, {
+	regExp:         /(\$\{)(\S*)$/,
+	getSuggestions: getVariableSuggestions,
 }]
+
+async function getVariableSuggestions(regExp, cwd, command) {
+	const results = new RegExp(regExp).exec(command)
+	const content = results[2]
+	return Object.keys(process.env)
+		.filter(key => key.startsWith(content))
+		.map(key => ({
+			prefix: '${' + content,
+			value:  key.replace(content, '') + '} ',
+		}))
+}
 
 /**
  * @param {String} cwd 
