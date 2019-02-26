@@ -94,9 +94,10 @@ class WebComponent extends HTMLElement {
 	}
 	getKillButton() {
 		const element = document.createElement('div')
-		element.innerHTML = 'X'
+		element.innerHTML = '&times;'
 		element.addEventListener('click', this.kill.bind(this))
 		Object.assign(element.style, {
+			fontSize:   '1.4em',
 			cursor:     'pointer',
 			fontWeight: 'bold',
 			padding:    '0 var(--default-margin)',
