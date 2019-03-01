@@ -3,6 +3,7 @@ import Path from 'path'
 import SuggestionGenerator from '../../utils/SuggestionGenerator'
 import CommandRunner from '../../utils/CommandRunner'
 import Formatter from '../../utils/Formatter'
+import Os from 'os'
 import { eventNames } from 'cluster'
 
 const tagName = 'terminal-command-area'
@@ -74,8 +75,7 @@ class WebComponent extends HTMLElement {
 				// this.elements.suggestionElement.children[0].focus()
 			}
 		}, { passive: false })
-		shadowRoot.addEventListener('keydown', (event) => {
-			
+		shadowRoot.addEventListener('keydown', (event) => {			 
 			if (
 				event.code === 'Enter' && 
 				!event.shiftKey
@@ -90,6 +90,10 @@ class WebComponent extends HTMLElement {
 				}))
 				input.value = ''
 				*/
+			} else if (event.code === 'F5') {
+				this.elements.input.value += Os.homedir()
+			} else if (event.code === 'KeyU' && event.ctrlKey) {
+				this.elements.input.value = ''
 			}
 		})
 		this.elements.input.addEventListener('input', this.onInput.bind(this))
