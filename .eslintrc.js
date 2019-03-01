@@ -47,7 +47,7 @@ module.exports = {
     },
     rules: {
       //'prefer-stateless-function' : warn,'
-      'complexity': [warn, 10],
+      'complexity': [warn, 20],
       'no-console': off,
       'no-unused-vars': warn,
       'indent': indent,
