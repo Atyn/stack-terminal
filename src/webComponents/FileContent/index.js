@@ -1,6 +1,7 @@
 import FsExtra from 'fs-extra'
 import Path from 'path'
-import { Terminal } from 'xterm'
+// import { Terminal } from 'xterm'
+import Convert from 'ansi-to-html'
 import FileSyncer from '../../utils/FileSyncer'
 import PathGenerator from '../../utils/PathGenerator'
 
@@ -8,6 +9,10 @@ const tagName = 'terminal-file-content'
 export default tagName
 
 // 'var(--default-margin)'
+
+// console.log(convert.toHtml('\x1b[30mblack\x1b[37mwhite'))
+const ansiConvert = new Convert()
+console.log(ansiConvert)
 
 const filename = 'output'
 const templates = {
@@ -90,7 +95,7 @@ class WebComponent extends HTMLElement {
 		const filepath = Path.resolve(workingDirectory, id, filename)
 		const buffer = await FsExtra.readFile(filepath)
 		*/
-		this.pre.innerHTML = content
+		this.pre.innerHTML = ansiConvert.toHtml(content)
 	}
 	async getRowElement() {
 		const commandElement = await this.getCommandElement()

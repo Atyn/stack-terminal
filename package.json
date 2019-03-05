@@ -25,6 +25,7 @@
   },
   "homepage": "https://github.com/Atyn/stack-terminal#readme",
   "dependencies": {
+    "ansi-to-html": "^0.6.10",
     "electron": "^4.0.2",
     "fs-extra": "^7.0.1",
     "xterm": "^3.11.0"
