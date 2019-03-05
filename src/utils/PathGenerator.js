@@ -1,5 +1,7 @@
 import Path from 'path'
-const Os = require('os')
+import Os from 'os'
+
+const homedir = Os.homedir()
 const tmpDir = Os.tmpdir()
 const fileAreaPath = Path.resolve(tmpDir, 'stack-terminal')
 
@@ -27,5 +29,8 @@ export default {
 	},
 	getExitStatusFilePath(id) {
 		return Path.resolve(fileAreaPath, id, 'exitstatus')
+	},
+	getUserConfigFilePath() {
+		return Path.resolve(__dirname, '../configFile.json')
 	},
 }

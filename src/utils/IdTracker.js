@@ -22,6 +22,9 @@ export default {
 		await FsExtra.mkdirp(directoryPath)
 		return newId
 	},
+	getHighestId() {
+		return highestId
+	},
 }
 
 FsExtra.watch(fileAreaPath, onFileChange)

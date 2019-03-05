@@ -2,7 +2,11 @@ import FsExtra from 'fs-extra'
 import Path from 'path'
 import SuggestionGenerator from '../../utils/SuggestionGenerator'
 import CommandRunner from '../../utils/CommandRunner'
+import Searcher from '../../utils/Searcher'
+import PathGenerator from '../../utils/PathGenerator'
+import IdTracker from '../../utils/IdTracker'
 import Formatter from '../../utils/Formatter'
+import Os from 'os'
 import { eventNames } from 'cluster'
 
 const tagName = 'terminal-command-area'
@@ -74,33 +78,67 @@ class WebComponent extends HTMLElement {
 				// this.elements.suggestionElement.children[0].focus()
 			}
 		}, { passive: false })
-		shadowRoot.addEventListener('keydown', (event) => {
-			
-			if (
-				event.code === 'Enter' && 
-				!event.shiftKey
-			) {
-				const command = this.elements.input.value
-				this.elements.input.value = ''
-				this.onCommand(command)
-				this.elements.suggestionElement.style.display = 'none'
-				/*
-				this.dispatchEvent(new CustomEvent('command', {
-					detail: input.value,
-				}))
-				input.value = ''
-				*/
-			}
-		})
+		this.searchObject = {
+			command: '',
+			index:   null,
+		}
+		shadowRoot.addEventListener('keydown', this.onKeyDown.bind(this))
 		this.elements.input.addEventListener('input', this.onInput.bind(this))
-		
 		shadowRoot.appendChild(styleElement.cloneNode(true))
 		shadowRoot.appendChild(this.elements.rootElement)
-
 		this.elements.rootElement.appendChild(this.elements.cwdElement)
 		this.elements.rootElement.appendChild(this.elements.cwdElement)
 		this.elements.rootElement.appendChild(this.elements.suggestionElement)
 		this.elements.rootElement.appendChild(this.elements.input)
+	}
+	submit() {
+		const command = this.elements.input.value
+		this.searchObject.index = null
+		this.elements.input.value = ''
+		this.onCommand(command)
+		this.elements.suggestionElement.style.display = 'none'
+	}
+	async onKeyDown(event) {
+		if (
+			event.code === 'Enter' && 
+			!event.shiftKey
+		) {
+			this.submit()
+		} else if (event.code === 'F5') {
+			this.elements.input.value += Os.homedir()
+		} else if (event.code === 'KeyU' && event.ctrlKey) {
+			this.elements.input.value = ''
+		} else if (event.code === 'ArrowUp') {
+			event.preventDefault()
+			if (this.searchObject.index === null) {
+				this.searchObject.command = this.elements.input.value
+				this.searchObject.index = Number(IdTracker.getHighestId()) + 1
+			}
+			const results = await Searcher.find({
+				fromIndex: this.searchObject.index - 1,
+				onCommand: (text, index) => 
+					text.startsWith(this.searchObject.command) ?
+						{ index, value: text } : 
+						null,
+			})
+			if (results) {
+				this.searchObject.index = results.index
+				this.elements.input.value = results.value
+			}	
+		} else if (event.code === 'ArrowDown' && this.searchObject.index !== null) { 
+			const results = await Searcher.find({
+				fromIndex: this.searchObject.index + 1,
+				toIndex:   Number(IdTracker.getHighestId()),
+				onCommand: (text, index) => 
+					text.startsWith(this.searchObject.command) ?
+						{ index, value: text } : 
+						null,
+			})
+			if (results) {
+				this.searchObject.index = results.index
+				this.elements.input.value = results.value
+			}
+		}
 	}
 	getCwdElement() {
 		const element = document.createElement('div')

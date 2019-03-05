@@ -1,0 +1,9 @@
+[Desktop Entry]
+Encoding=UTF-8
+Version=1.0
+Type=Application
+Terminal=false
+Exec=$HOME/.npm-packages/bin/async-terminal
+Name=Name of Application
+Icon=$HOME/.npm-packages/lib/node_modules/async-terminal/icon.svg
+Name[en_US]=async-terminal.desktop
