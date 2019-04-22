@@ -3,7 +3,7 @@
 	"description": "",
 	"main": "index.js",
 	"scripts": {
-		"start": "electron electron-apps/using-serve && npm run serve",
+		"start": "concurrently \"npm run serve\" \"sleep 5 && npm run start-electron-serve-app\"",
 		"start-electron-serve-app": "electron electron-apps/using-serve",
 		"start-electron-production-app": "electron electron-apps/production",
 		"create-apps": "electron-packager electron-apps/production --all --out=installable",
@@ -26,6 +26,7 @@
 	"homepage": "https://github.com/Atyn/stack-terminal#readme",
 	"dependencies": {
 		"ansi-to-html": "^0.6.10",
+		"concurrently": "^4.1.0",
 		"electron": "^4.0.2",
 		"fs-extra": "^7.0.1",
 		"xterm": "^3.11.0"

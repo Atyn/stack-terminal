@@ -12,13 +12,12 @@ export default tagName
 
 // console.log(convert.toHtml('\x1b[30mblack\x1b[37mwhite'))
 const ansiConvert = new Convert()
-console.log(ansiConvert)
 
 const filename = 'output'
 const templates = {
-	root:   document.createElement('div'),
+	root: document.createElement('div'),
 	canvas: document.createElement('canvas'),
-	pre:    document.createElement('pre'),
+	pre: document.createElement('pre'),
 }
 
 Object.assign(templates.canvas.style, {
@@ -26,15 +25,15 @@ Object.assign(templates.canvas.style, {
 })
 
 Object.assign(templates.pre.style, {
-	flexGrow:   1,
+	flexGrow: 1,
 	fontFamily: 'inherit',
-	margin:     0,
+	margin: 0,
 })
 
 const hostStyle = {
-	display:       'flex',
+	display: 'flex',
 	flexDirection: 'column',
-	padding:       'var(--default-margin)',
+	padding: 'var(--default-margin)',
 }
 
 templates.root.style.padding = '10px'
@@ -45,7 +44,7 @@ class WebComponent extends HTMLElement {
 	constructor() {
 		super()
 		this.listener = this.onFileChanged.bind(this)
-		const shadowRoot = this.attachShadow({ mode: 'open' })
+		this.attachShadow({ mode: 'open' })
 		// this.shadowRoot.appendChild(this.rootElement)
 		this.canvas = templates.canvas.cloneNode(true)
 		this.pre = templates.pre.cloneNode(true)
@@ -56,10 +55,9 @@ class WebComponent extends HTMLElement {
 		console.log(this.canvas)
 		this.shadowRoot.appendChild(this.canvas)
 		*/
-		
+
 		// term.open(document.getElementById('terminal'))
 		// term.write('Hello from \x1B[1;3;31mxterm.js\x1B[0m $ ')
-
 	}
 	async disconnectedCallback() {
 		this.fileWatcher.close()
@@ -96,6 +94,8 @@ class WebComponent extends HTMLElement {
 		const buffer = await FsExtra.readFile(filepath)
 		*/
 		this.pre.innerHTML = ansiConvert.toHtml(content)
+		const event = new CustomEvent('content-added', { bubbles: true })
+		this.dispatchEvent(event)
 	}
 	async getRowElement() {
 		const commandElement = await this.getCommandElement()

@@ -11,11 +11,11 @@ const tagName = 'terminal-entry'
 export default tagName
 
 const templates = {
-	root: document.createElement('div'),	
+	root: document.createElement('div'),
 }
 
 const hostStyle = {
-	display:       'flex',
+	display: 'flex',
 	flexDirection: 'column',
 	// padding:       'var(--default-margin)',
 }
@@ -26,14 +26,16 @@ templates.root.style.padding = '10px'
 
 class WebComponent extends HTMLElement {
 	constructor() {
-		super()		
-		const shadowRoot = this.attachShadow({ mode: 'open' })
+		super()
+		this.attachShadow({ mode: 'open' })
 		this.intersectionObserver = new IntersectionObserver(
-			this.onIntersection.bind(this), {
+			this.onIntersection.bind(this),
+			{
 				rootMargin: '0px',
-				threshold:  1.0,
-				root:       document.body,
-			})
+				threshold: 1.0,
+				root: document.body,
+			}
+		)
 		this.killButton = this.getKillButton()
 		this.expandButton = this.getExpandButton()
 		this.timeElement = document.createElement('div')
@@ -61,7 +63,7 @@ class WebComponent extends HTMLElement {
 	onIntersection(entries) {
 		entries.forEach(entry => {
 			entry.isIntersecting
-		})		
+		})
 	}
 	disconnectedCallback() {
 		this.intersectionObserver.unobserve()
@@ -81,7 +83,16 @@ class WebComponent extends HTMLElement {
 			),
 		]
 		const fileStats = await FsExtra.stat(PathGenerator.getSpawnFilePath(id))
-		this.timeElement.innerText = new Date(fileStats.atimeMs).toLocaleTimeString()
+		this.timeElement.innerText = new Date(
+			fileStats.atimeMs
+		).toLocaleTimeString()
+		this.shadowRoot.addEventListener('content-added', event => {
+			this.dispatchEvent(
+				new CustomEvent(event.type, {
+					bubbles: true,
+				})
+			)
+		})
 	}
 	onStatus(value) {
 		const status = Number.parseInt(value)
@@ -97,24 +108,25 @@ class WebComponent extends HTMLElement {
 		element.innerHTML = '&times;'
 		element.addEventListener('click', this.kill.bind(this))
 		Object.assign(element.style, {
-			fontSize:   '1.4em',
-			cursor:     'pointer',
+			fontSize: '1.4em',
+			cursor: 'pointer',
 			fontWeight: 'bold',
-			padding:    '0 var(--default-margin)',
+			padding: '0 var(--default-margin)',
 		})
 		return element
 	}
 	getExpandButton() {
 		const element = document.createElement('div')
-		element.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'
+		element.innerHTML =
+			'<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'
 		element.addEventListener('click', this.expand.bind(this))
 		Object.assign(element.style, {
-			cursor:     'pointer',
+			cursor: 'pointer',
 			fontWeight: 'bold',
-			padding:    '0 var(--default-margin)',
-			margin:     '0 -10px',
+			padding: '0 var(--default-margin)',
+			margin: '0 -10px',
 			transition: 'transform 0.6s',
-			transform:  'rotate(-180deg)',
+			transform: 'rotate(-180deg)',
 		})
 		return element
 	}
@@ -131,11 +143,11 @@ class WebComponent extends HTMLElement {
 		const element = document.createElement('div')
 		statusElement.style.flexShrink = '0'
 		Object.assign(element.style, {
-			display:         'flex',
-			position:        'sticky',
-			alignItems:      'center',
-			padding:         'var(--default-margin)',
-			top:             0,
+			display: 'flex',
+			position: 'sticky',
+			alignItems: 'center',
+			padding: 'var(--default-margin)',
+			top: 0,
 			backgroundColor: 'var(--background-color)',
 		})
 		element.appendChild(statusElement)
@@ -175,11 +187,11 @@ class WebComponent extends HTMLElement {
 	async getStatusElement() {
 		const element = document.createElement('div')
 		Object.assign(element.style, {
-			color:           'yellow',
-			height:          '0.8em',
-			width:           '0.8em',
+			color: 'yellow',
+			height: '0.8em',
+			width: '0.8em',
 			backgroundColor: 'currentColor',
-			borderRadius:    '50%',
+			borderRadius: '50%',
 		})
 		// element.innerHTML = 'status'
 		return element

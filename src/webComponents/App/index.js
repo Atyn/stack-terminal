@@ -16,34 +16,34 @@ const tagName = 'terminal-app'
 export default tagName
 
 const hostStyle = {
-	display:       'flex',
+	display: 'flex',
 	flexDirection: 'column',
-	flexGrow:      1,
-	overflow:      'hidden',
+	flexGrow: 1,
+	overflow: 'hidden',
 }
 
 const templates = {
-	stackArea:   document.createElement(StackArea),
+	stackArea: document.createElement(StackArea),
 	commandArea: document.createElement(CommandArea),
-	root:        document.createElement('div'),
+	root: document.createElement('div'),
 }
 Object.assign(templates.root.style, {
-	display:       'flex',
+	display: 'flex',
 	flexDirection: 'column',
-	flexGrow:      1,
-	overflow:      'hidden',
+	flexGrow: 1,
+	overflow: 'hidden',
 })
 Object.assign(templates.commandArea.style, {
-	display:       'flex',
+	display: 'flex',
 	flexDirection: 'column',
-	flexShrink:    0,
-	maxHeight:     '100%',
+	flexShrink: 0,
+	maxHeight: '100%',
 })
 Object.assign(templates.stackArea.style, {
-	display:       'flex',
+	display: 'flex',
 	flexDirection: 'column',
-	flexShrink:    1,
-	flexGrow:      1,
+	flexShrink: 1,
+	flexGrow: 1,
 })
 
 class WebComponent extends HTMLElement {
@@ -55,8 +55,8 @@ class WebComponent extends HTMLElement {
 		const shadowRoot = this.attachShadow({ mode: 'open' })
 		const commandArea = templates.commandArea.cloneNode(true)
 		const stackArea = templates.stackArea.cloneNode(true)
-		this.shadowRoot.addEventListener('click', () => {			
-		//	commandArea.focus()	
+		this.shadowRoot.addEventListener('click', () => {
+			//	commandArea.focus()
 		})
 		stackArea.setAttribute('working-directory', workingDirectory)
 		shadowRoot.appendChild(this.styleSheet)
