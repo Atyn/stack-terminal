@@ -40,8 +40,9 @@ class WebComponent extends HTMLElement {
 		this.expandButton = this.getExpandButton()
 		this.timeElement = document.createElement('div')
 		Object.assign(this.timeElement.style, {
+			whiteSpace: 'nowrap',
 			opacity: 0.4,
-			padding: '0 var(--default-margin)',
+			padding: '0 calc(2*var(--default-margin))',
 		})
 	}
 	async expand() {
@@ -139,7 +140,7 @@ class WebComponent extends HTMLElement {
 		const statusElement = await this.getStatusElement()
 		this.statusElement = statusElement
 		// const buttonAreaElement = await this.getButtonAreaElement()
-		statusElement.style.marginRight = 'var(--default-margin)'
+		statusElement.style.marginRight = 'calc(2*var(--default-margin))'
 		const element = document.createElement('div')
 		statusElement.style.flexShrink = '0'
 		Object.assign(element.style, {
