@@ -14,18 +14,18 @@ templates.scrollDownButton.innerHTML = `
 `
 const defaultScrollButtonOpacity = 0.8
 
-templates.style.innerHTML = `
-    .scrollContainer::-webkit-scrollbar {
-        width: 0.5em;
-    }
-    .scrollContainer::-webkit-scrollbar-track {
-        -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0);
-    }
-    .scrollContainer::-webkit-scrollbar-thumb {
-        background-color: var(--secondary-color);
-        outline: 1px solid red;
-        border-radius: 6px;
-    }
+templates.style.innerHTML = /* css */ `
+	.scrollContainer::-webkit-scrollbar {
+		width: 0.5em;
+	}
+	.scrollContainer::-webkit-scrollbar-track {
+		-webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0);
+	}
+	.scrollContainer::-webkit-scrollbar-thumb {
+		background-color: var(--secondary-color);
+		outline: 1px solid red;
+		border-radius: 6px;
+	}
 `
 
 templates.scrollContainer.classList.add('scrollContainer')

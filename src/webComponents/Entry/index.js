@@ -111,16 +111,8 @@ class WebComponent extends HTMLElement {
 		return element
 	}
 	getExpandButton() {
-		const element = document.createElement('div')
-		element.innerHTML =
-			'<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'
+		const element = Templates.expandButton.cloneNode(true)
 		element.addEventListener('click', this.expand.bind(this))
-		Object.assign(element.style, {
-			cursor: 'pointer',
-			fontWeight: 'bold',
-			transition: 'transform 0.6s',
-			transform: 'rotate(-180deg)',
-		})
 		return element
 	}
 	async getRowElement() {
@@ -166,14 +158,7 @@ class WebComponent extends HTMLElement {
 		return outputElement
 	}
 	async getStatusElement() {
-		const element = document.createElement('div')
-		Object.assign(element.style, {
-			color: 'yellow',
-			height: '0.8em',
-			width: '0.8em',
-			backgroundColor: 'currentColor',
-			borderRadius: '50%',
-		})
+		const element = Templates.status.cloneNode(true)
 		// element.innerHTML = 'status'
 		return element
 	}
