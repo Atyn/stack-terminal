@@ -18,7 +18,6 @@ templates.style.innerHTML = /* css */ `
 	.scrollContainer {
 		scroll-behavior: smooth;
 	}
-
 	.scrollContainer::-webkit-scrollbar {
 		width: 0.5em;
 	}

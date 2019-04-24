@@ -12,27 +12,6 @@ const templates = Templates
 const tagName = 'terminal-command-area'
 export default tagName
 
-const styleElement = document.createElement('style')
-styleElement.innerHTML = `
-	button {
-		cursor: pointer;
-		flex-shrink: 0;
-	}
-	button:hover,
-	button:focus {
-		outline: none;
-		background-color: rgba(255, 255, 255, 0.1) !important;
-	}
-	pre {
-		font-family: inherit;
-		margin: 0;
-		flex-shrink: 0;
-	}
-	.sendButton {
-
-	}
-`
-
 class WebComponent extends HTMLElement {
 	constructor() {
 		super()
@@ -45,6 +24,7 @@ class WebComponent extends HTMLElement {
 			rootElement: templates.root.cloneNode(true),
 			inputHolder: templates.inputHolder.cloneNode(true),
 			sendButton: this.getSendButtonElement(),
+			style: Templates.style.cloneNode(true),
 		}
 		this.elements.input.setAttribute('tabindex', -1)
 		this.elements.input.addEventListener(
@@ -63,7 +43,7 @@ class WebComponent extends HTMLElement {
 		}
 		shadowRoot.addEventListener('keydown', this.onKeyDown.bind(this))
 		this.elements.input.addEventListener('input', this.onInput.bind(this))
-		shadowRoot.appendChild(styleElement.cloneNode(true))
+		shadowRoot.appendChild(this.elements.style)
 		shadowRoot.appendChild(this.elements.rootElement)
 		this.elements.inputHolder.appendChild(this.elements.input)
 		this.elements.inputHolder.appendChild(this.elements.sendButton)
@@ -147,7 +127,7 @@ class WebComponent extends HTMLElement {
 		}
 	}
 	getSuggestionsElement() {
-		const element = document.createElement('ul')
+		const element = Templates.scrollContainer.cloneNode(true)
 		element.addEventListener('keydown', event => {
 			switch (event.code) {
 				case 'Backspace':
@@ -170,16 +150,7 @@ class WebComponent extends HTMLElement {
 				// this.elements.suggestionElement.children[0].focus()
 			}
 		})
-		Object.assign(element.style, {
-			margin: '0',
-			display: 'none',
-			flexDirection: 'column',
-			padding: 'var(--default-margin)',
-			overflowY: 'scroll',
-			overflowX: 'hidden',
-			flexShrink: 0,
-			maxHeight: '400px',
-		})
+
 		return element
 	}
 	getSuggestionElement(suggestionObject, index) {

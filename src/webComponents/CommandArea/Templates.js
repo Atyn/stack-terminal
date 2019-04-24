@@ -4,13 +4,56 @@ const templates = {
 	root: document.createElement('div'),
 	sendButton: document.createElement('div'),
 	style: document.createElement('style'),
+	scrollContainer: document.createElement('ul'),
 }
 
 export default templates
 
 templates.style.innerHTML = `
+	.scrollContainer {
+		scroll-behavior: smooth;
+	}
+	.scrollContainer::-webkit-scrollbar {
+		width: 0.5em;
+	}
+	.scrollContainer::-webkit-scrollbar-track {
+		-webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0);
+	}
+	.scrollContainer::-webkit-scrollbar-thumb {
+		background-color: var(--secondary-color);
+		outline: 1px solid red;
+		border-radius: 6px;
+	}
+	button {
+		cursor: pointer;
+		flex-shrink: 0;
+	}
+	button:hover,
+	button:focus {
+		outline: none;
+		background-color: rgba(255, 255, 255, 0.1) !important;
+	}
+	pre {
+		font-family: inherit;
+		margin: 0;
+		flex-shrink: 0;
+	}
+	.sendButton {
 
+	}
 `
+
+templates.scrollContainer.classList.add('scrollContainer')
+Object.assign(templates.scrollContainer.style, {
+	margin: '0',
+	display: 'none',
+	flexDirection: 'column',
+	padding: 'var(--default-margin)',
+	overflowY: 'scroll',
+	overflowX: 'hidden',
+	flexShrink: 0,
+	maxHeight: '400px',
+})
 
 Object.assign(templates.sendButton.style, {
 	outline: 'none',
