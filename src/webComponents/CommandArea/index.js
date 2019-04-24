@@ -30,6 +30,7 @@ Object.assign(templates.sendButton.style, {
 	flexShrink: 0,
 	backgroundColor: 'rgba(0,0,0,0)',
 	display: 'flex',
+	color: 'inherit',
 })
 Object.assign(templates.inputHolder.style, {
 	flexShrink: 0,

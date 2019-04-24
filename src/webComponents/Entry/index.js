@@ -1,18 +1,12 @@
 import FileContentViewer from '../FileContent'
 import FsExtra from 'fs-extra'
-import Path from 'path'
-import ChildProcess from 'child_process'
 import CommandRunner from '../../utils/CommandRunner'
 import FileSyncer from '../../utils/FileSyncer'
 import PathGenerator from '../../utils/PathGenerator'
-import { generateKeyPair } from 'crypto'
+import Templates from './Templates'
 
 const tagName = 'terminal-entry'
 export default tagName
-
-const templates = {
-	root: document.createElement('div'),
-}
 
 const hostStyle = {
 	display: 'flex',
@@ -20,14 +14,16 @@ const hostStyle = {
 	// padding:       'var(--default-margin)',
 }
 
-templates.root.style.padding = '10px'
-
 // Run by executing "sh ./start.sh & echo $! > pid"
 
 class WebComponent extends HTMLElement {
 	constructor() {
 		super()
 		this.attachShadow({ mode: 'open' })
+		this.elements = {
+			style: Templates.style.cloneNode(true),
+		}
+		this.shadowRoot.appendChild(this.elements.style)
 		this.intersectionObserver = new IntersectionObserver(
 			this.onIntersection.bind(this),
 			{
@@ -42,7 +38,6 @@ class WebComponent extends HTMLElement {
 		Object.assign(this.timeElement.style, {
 			whiteSpace: 'nowrap',
 			opacity: 0.4,
-			padding: '0 calc(2*var(--default-margin))',
 		})
 	}
 	async expand() {
@@ -112,7 +107,6 @@ class WebComponent extends HTMLElement {
 			fontSize: '1.4em',
 			cursor: 'pointer',
 			fontWeight: 'bold',
-			padding: '0 var(--default-margin)',
 		})
 		return element
 	}
@@ -124,8 +118,6 @@ class WebComponent extends HTMLElement {
 		Object.assign(element.style, {
 			cursor: 'pointer',
 			fontWeight: 'bold',
-			padding: '0 var(--default-margin)',
-			margin: '0 -10px',
 			transition: 'transform 0.6s',
 			transform: 'rotate(-180deg)',
 		})
@@ -133,24 +125,14 @@ class WebComponent extends HTMLElement {
 	}
 	async getRowElement() {
 		const fillerElement = document.createElement('div')
-		fillerElement.style.flexGrow = 1
 		const commandElement = await this.getCommandElement()
-		// commandElement.style.flexGrow = 1
+		commandElement.style.flexGrow = 1
 		commandElement.style.fontWeight = 'bold'
 		const statusElement = await this.getStatusElement()
 		this.statusElement = statusElement
 		// const buttonAreaElement = await this.getButtonAreaElement()
-		statusElement.style.marginRight = 'calc(2*var(--default-margin))'
-		const element = document.createElement('div')
+		const element = Templates.row.cloneNode(true)
 		statusElement.style.flexShrink = '0'
-		Object.assign(element.style, {
-			display: 'flex',
-			position: 'sticky',
-			alignItems: 'center',
-			padding: 'var(--default-margin)',
-			top: 0,
-			backgroundColor: 'var(--background-color)',
-		})
 		element.appendChild(statusElement)
 		element.appendChild(commandElement)
 		element.appendChild(this.timeElement)
@@ -161,8 +143,6 @@ class WebComponent extends HTMLElement {
 		return element
 	}
 	async getRootElement() {
-		const workingDirectory = this.getAttribute('working-directory')
-		const id = this.getAttribute('id')
 		const resultElement = await this.getResultElement()
 		const rowElement = await this.getRowElement()
 		const element = document.createElement('div')
@@ -208,7 +188,7 @@ class WebComponent extends HTMLElement {
 		const id = this.getAttribute('id')
 		const commandFilePath = PathGenerator.getCommandFilePath(id)
 		const buffer = await FsExtra.readFile(commandFilePath)
-		const element = document.createElement('div')
+		const element = Templates.title.cloneNode(true)
 		element.innerHTML = buffer.toString()
 		return element
 	}
