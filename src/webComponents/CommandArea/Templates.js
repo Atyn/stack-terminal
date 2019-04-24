@@ -2,10 +2,15 @@ const templates = {
 	inputHolder: document.createElement('div'),
 	input: document.createElement('input'),
 	root: document.createElement('div'),
-	sendButton: document.createElement('button'),
+	sendButton: document.createElement('div'),
+	style: document.createElement('style'),
 }
 
 export default templates
+
+templates.style.innerHTML = `
+
+`
 
 Object.assign(templates.sendButton.style, {
 	outline: 'none',
@@ -14,6 +19,10 @@ Object.assign(templates.sendButton.style, {
 	backgroundColor: 'rgba(0,0,0,0)',
 	display: 'flex',
 	color: 'inherit',
+	cursor: 'pointer',
+	alignItems: 'center',
+	justifyContent: 'center',
+	padding: 'var(--default-margin)',
 })
 Object.assign(templates.inputHolder.style, {
 	flexShrink: 0,
