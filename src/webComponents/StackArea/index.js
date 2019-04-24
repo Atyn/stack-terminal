@@ -1,17 +1,13 @@
 import Entry from '../Entry'
 import Debouncer from '../../utils/Debouncer'
 import FsExtra from 'fs-extra'
+import Templates from './Templates'
 
+const templates = Templates
 const tagName = 'terminal-stack-area'
-const templates = {
-	scrollDownButton: document.createElement('div'),
-}
-templates.scrollDownButton.innerHTML = `
-	<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-		<path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z" fill="currentColor"/>
-		<path fill="none" d="M0 0h24v24H0V0z"/>
-	</svg>
-`
+
+export default tagName
+
 const hostStyle = {
 	overflowY: 'hidden',
 	overflowX: 'hidden',
@@ -20,36 +16,6 @@ const hostStyle = {
 	// 'scroll-behavior': 'smooth',
 }
 const defaultScrollButtonOpacity = 0.8
-const lockStateStyle = {
-	position: 'absolute',
-	right: '10px',
-	bottom: '10px',
-}
-const scrollContainerStyle = {
-	overflowY: 'scroll',
-	overflowX: 'hidden',
-	display: 'flex',
-	position: 'relative',
-	flexDirection: 'column',
-}
-
-Object.assign(templates.scrollDownButton.style, {
-	position: 'absolute',
-	backgroundColor: 'black',
-	color: 'white',
-	borderRadius: '50%',
-	left: '47%',
-	opacity: defaultScrollButtonOpacity,
-	padding: 'var(--default-margin)',
-	bottom: 'var(--default-margin)',
-	transition: 'opacity 0.6s',
-	display: 'flex',
-	alignItems: 'center',
-	justifyContent: 'center',
-	cursor: 'pointer',
-})
-
-export default tagName
 
 class WebComponent extends HTMLElement {
 	constructor() {
@@ -57,16 +23,17 @@ class WebComponent extends HTMLElement {
 		this.listener = this.onFileChanged.bind(this)
 		this.elements = {
 			scrollDownButton: templates.scrollDownButton.cloneNode(true),
+			style: templates.style.cloneNode(true),
+			scrollContainer: templates.scrollContainer.cloneNode(true),
 		}
 		const shadowRoot = this.attachShadow({ mode: 'open' })
 		shadowRoot.innerHTML = ''
-		this.scrollContainer = document.createElement('div')
 		this.elements.scrollDownButton.addEventListener(
 			'click',
 			this.scrollToBottom.bind(this)
 		)
-		Object.assign(this.scrollContainer.style, scrollContainerStyle)
-		shadowRoot.appendChild(this.scrollContainer)
+		shadowRoot.appendChild(this.elements.style)
+		shadowRoot.appendChild(this.elements.scrollContainer)
 		shadowRoot.appendChild(this.elements.scrollDownButton)
 	}
 	onFileChanged(changeType, filename) {
@@ -77,13 +44,14 @@ class WebComponent extends HTMLElement {
 	}
 	scrollToBottom() {
 		setTimeout(() => {
-			this.scrollContainer.scrollTop = this.scrollContainer.scrollHeight
+			this.elements.scrollContainer.scrollTop = this.elements.scrollContainer.scrollHeight
 		}, 50)
 	}
 	scrollIsDown() {
 		return (
-			this.scrollContainer.scrollTop + this.scrollContainer.clientHeight ===
-			this.scrollContainer.scrollHeight
+			this.elements.scrollContainer.scrollTop +
+				this.elements.scrollContainer.clientHeight ===
+			this.elements.scrollContainer.scrollHeight
 		)
 	}
 	onDebouncedScroll() {
@@ -110,7 +78,10 @@ class WebComponent extends HTMLElement {
 			this.onDebouncedScroll.bind(this),
 			100
 		)
-		this.scrollContainer.addEventListener('scroll', scrollDebouncer.run)
+		this.elements.scrollContainer.addEventListener(
+			'scroll',
+			scrollDebouncer.run
+		)
 		this.shadowRoot.addEventListener(
 			'content-added',
 			this.onContentAdded.bind(this)
@@ -128,7 +99,7 @@ class WebComponent extends HTMLElement {
 		element.setAttribute('working-directory', this.workingDirectory)
 		element.setAttribute('id', id)
 		element.style.flexShrink = 0
-		this.scrollContainer.appendChild(element)
+		this.elements.scrollContainer.appendChild(element)
 	}
 }
 customElements.define(tagName, WebComponent)

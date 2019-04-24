@@ -17,7 +17,7 @@ templates.style.innerHTML = `
 		position: sticky;
 		align-items: center;
 		top: 0;
-		backgroundColor: var(--background-color);
+		background-color: var(--background-color);
 	}
 	.row > * {
 		margin: 0 var(--default-margin);

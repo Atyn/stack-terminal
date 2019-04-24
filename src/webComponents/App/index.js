@@ -94,6 +94,7 @@ class WebComponent extends HTMLElement {
 		:host {
 			--background-color: ${config.colors.backgroundColor};
 			--default-margin: ${config.margins.defaultMargin};
+			--secondary-color: ${config.colors.secondaryColor};
 			font-family: ${config.font.family};
 			background-color: var(--background-color);
 			color: ${config.colors.fontColor};

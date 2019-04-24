@@ -5,6 +5,7 @@
 	},
 	"colors": {
 		"backgroundColor": "#333",
+		"secondaryColor": "rgba(255, 255, 255, 0.1)",
 		"fontColor": "#eee",
 		"list": [
 			"#2e3436",
