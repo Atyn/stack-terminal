@@ -174,7 +174,12 @@ class WebComponent extends HTMLElement {
 		const commandFilePath = PathGenerator.getCommandFilePath(id)
 		const buffer = await FsExtra.readFile(commandFilePath)
 		const element = Templates.title.cloneNode(true)
+
+		const fileStats = await FsExtra.stat(PathGenerator.getSpawnFilePath(id))
+		const timeText = new Date(fileStats.atimeMs).toLocaleTimeString()
+
 		element.innerHTML = buffer.toString()
+		element.title = timeText
 		return element
 	}
 	async getResultElement() {

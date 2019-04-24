@@ -15,6 +15,10 @@ templates.scrollDownButton.innerHTML = `
 const defaultScrollButtonOpacity = 0.8
 
 templates.style.innerHTML = /* css */ `
+	.scrollContainer {
+		scroll-behavior: smooth;
+	}
+
 	.scrollContainer::-webkit-scrollbar {
 		width: 0.5em;
 	}
